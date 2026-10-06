@@ -1,0 +1,1605 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tool ICD eziologia">
+<meta name="theme-color" content="#FAF9F7">
+<script data-iphone="sentinella">
+(function(){
+var h=document.documentElement, msg="";
+function ha(c){ return (" "+h.className+" ").indexOf(" "+c+" ")>=0; }
+// L'errore puo' arrivare prima che l'avviso esista — uno script in <head> che
+// non si lascia leggere —: il messaggio si tiene da parte e si scrive quando
+// la pagina c'e'.
+function scrivi(){
+  var e=document.getElementById("nmerr");
+  if(e&&msg) e.textContent="Errore del motore: "+msg;
+}
+function ko(m){
+  if(m&&!msg) msg=m;
+  if(!ha("motore-ko")) h.className+=" motore-ko";
+  scrivi();
+}
+h.className+=" js";
+window.onerror=function(m,src,riga,col){
+  m=String(m);
+  if(/^Script error\.?$/.test(m)) m="il browser non ne mostra il dettaglio (\u00abScript error.\u00bb)";
+  ko(m+(riga?" (riga "+riga+(col?", colonna "+col:"")+")":""));
+};
+document.addEventListener("DOMContentLoaded",function(){
+  if(!ha("motore-ok")) ko(msg||"il motore non ha completato l'avvio"); else scrivi();
+});
+})();
+</script>
+<title>ICD per eziologia — fuori dallo scompenso</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#FAF9F7; --surface:#FFFFFF; --surface-alt:#F3F2EF;
+    --border:rgba(11,11,11,0.10); --border-strong:rgba(11,11,11,0.18);
+    --text-primary:#0B0B0B; --text-secondary:#52514E; --text-muted:#76746F;
+    --accent-blue:#2A78D6;   --accent-blue-bg:#E6F1FB;   --accent-blue-border:#B5D4F4;
+    --accent-amber:#BA7517;  --accent-amber-bg:#FAEEDA;  --accent-amber-border:#FAC775;
+    --accent-red:#A32D2D;    --accent-red-bg:#FCEBEB;    --accent-red-border:#F7C1C1;
+    --accent-green:#3B6D11;  --accent-green-bg:#EAF3DE;  --accent-green-border:#C0DD97;
+    --cor-1:#3B8E5A; --cor-2a:#E0A82E; --cor-2b:#DE7E3C; --cor-3:#B33A3A;
+    --k0:#2E7D4F; --k0-bg:#E2F3E8; --k0-bd:#A6D9B8;
+    --k1:#2A78D6; --k1-bg:#E3EFFB; --k1-bd:#A9CBF1;
+    --k2:#8A6A00; --k2-bg:#FBF3C8; --k2-bd:#EBD56C;
+    --k3:#B45309; --k3-bg:#FDEBD8; --k3-bd:#F4BD85;
+    --k4:#A32D2D; --k4-bg:#FCE3E3; --k4-bd:#F0A9A9;
+    --grid:rgba(42,120,214,.08);
+    --font:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --display:'IBM Plex Sans Condensed','Arial Narrow',-apple-system,'Segoe UI',sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Consolas,'Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#111418; --surface:#181C22; --surface-alt:#20252D;
+      --border:rgba(255,255,255,.10); --border-strong:rgba(255,255,255,.19);
+      --text-primary:#E7EAEE; --text-secondary:#B8BEC7; --text-muted:#949BA5;
+      --accent-blue:#72AAEE;   --accent-blue-bg:#18283A;   --accent-blue-border:#2E4B6C;
+      --accent-amber:#E3A94F;  --accent-amber-bg:#30250F;  --accent-amber-border:#5D4719;
+      --accent-red:#EF8E8E;    --accent-red-bg:#361B1B;    --accent-red-border:#6B3232;
+      --accent-green:#95C873;  --accent-green-bg:#1C2A13;  --accent-green-border:#3C5626;
+      --k0:#8FD3A8; --k0-bg:#132B1D; --k0-bd:#2D5A3E;
+      --k1:#8EC0F5; --k1-bg:#16283C; --k1-bd:#2F5378;
+      --k2:#EDD36A; --k2-bg:#2C260C; --k2-bd:#5E5120;
+      --k3:#F3B27A; --k3-bg:#33210F; --k3-bd:#6B4524;
+      --k4:#F29A9A; --k4-bg:#361B1B; --k4-bd:#6B3232;
+      --grid:rgba(114,170,238,.07);
+      color-scheme:dark;
+    }
+  }
+  body { font-family:var(--font); background:var(--bg); color:var(--text-primary); font-size:14.5px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+  .page { max-width:960px; margin:0 auto; padding:0 16px 4rem; }
+  strong, b { font-weight:600; }
+  .muted { color:var(--text-muted); }
+  .hero { margin:0 -16px 0; padding:2.2rem 16px 1.3rem; border-bottom:1px solid var(--border);
+          background-color:var(--bg);
+          background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+          background-size:22px 22px; }
+  .kicker { font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-blue); margin-bottom:8px; }
+  .headline { font-family:var(--display); font-size:30px; font-weight:700; line-height:1.12; margin-bottom:10px; }
+  .lede { font-size:14.5px; color:var(--text-secondary); max-width:760px; margin-bottom:12px; }
+  .lede strong { color:var(--text-primary); }
+  .meta-row { display:flex; flex-wrap:wrap; gap:6px 8px; font-size:12px; }
+  .meta-chip { background:var(--surface); border:1px solid var(--border-strong); border-radius:99px; padding:2px 10px; color:var(--text-secondary); overflow-wrap:anywhere; }
+  .meta-chip strong { color:var(--text-primary); }
+  .bar { position:-webkit-sticky;position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--border-strong);
+         margin:0 -16px 1.2rem; padding:8px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; }
+  .bar .lbl { font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+  .bar .sp { flex:1 1 auto; }
+  .btn { font:600 12.5px var(--font); padding:6px 13px; border-radius:99px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); cursor:pointer; }
+  .btn:hover { border-color:var(--accent-blue); color:var(--accent-blue); }
+  .stage { display:flex; align-items:baseline; gap:10px; margin:2rem 0 .7rem; padding-bottom:6px; border-bottom:2px solid var(--border-strong); }
+  .stage-n { font-family:var(--mono); font-size:12px; font-weight:600; color:#FFFFFF; background:var(--accent-blue); border-radius:6px; padding:1px 7px; }
+  .stage-t { font-family:var(--display); font-size:20px; font-weight:700; line-height:1.2; }
+  .stage-w { margin-left:auto; font-size:11.5px; color:var(--text-muted); text-align:right; }
+  .card { background:var(--surface); border:1px solid var(--border-strong); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+  .card h3 { font-size:13px; font-weight:600; letter-spacing:.02em; margin-bottom:8px; color:var(--text-secondary); }
+  .card h4 { font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); margin:12px 0 4px; }
+  .fl { font-size:12.5px; font-weight:600; color:var(--text-secondary); min-width:150px; }
+  .fl small { display:block; font-weight:400; color:var(--text-muted); font-size:11.5px; }
+  input[type=number] { font:500 15px var(--font); color:var(--text-primary); background:var(--surface); border:1px solid var(--border-strong); border-radius:8px; padding:6px 9px; width:92px; text-align:center; }
+  select { font:500 13.5px var(--font); color:var(--text-primary); background:var(--surface); border:1px solid var(--border-strong); border-radius:8px; padding:6px 8px; max-width:100%; }
+  .seg { display:inline-flex; flex-wrap:wrap; border:1px solid var(--border-strong); border-radius:10px; overflow:hidden; max-width:100%; }
+  .seg label { position:relative; cursor:pointer; }
+  .seg input { position:absolute; opacity:0; width:1px; height:1px; }
+  .seg span { display:block; padding:6px 12px; font-size:13.5px; font-weight:500; color:var(--text-secondary); border-right:1px solid var(--border); }
+  .seg label:last-child span { border-right:none; }
+  .seg input:checked + span { background:var(--text-primary); color:var(--bg); }
+  .seg input:focus-visible + span { outline:2px solid var(--accent-blue); outline-offset:-2px; }
+  .chk { display:flex; align-items:flex-start; gap:9px; padding:6px 0; font-size:14px; line-height:1.45; border-bottom:1px dashed var(--border); cursor:pointer; }
+  .chk input { margin-top:3px; width:17px; height:17px; flex:0 0 auto; accent-color:var(--accent-blue); }
+  .chk small { display:block; color:var(--text-muted); font-size:12px; }
+  .chk .tx { flex:1 1 auto; min-width:0; }
+  .chk.on .tx { color:var(--text-primary); font-weight:500; }
+  .chk.conf { margin-top:6px; border-top:1px solid var(--border-strong); border-bottom:none; padding-top:9px; }
+  .riga { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:6px 0; border-bottom:1px dashed var(--border); }
+  .riga .fl { min-width:0; flex:1 1 180px; }
+  .riga select { flex:1 1 240px; min-width:0; }
+  .hide { display:none !important; }
+  .vv { font-family:var(--mono); font-size:12px; color:var(--text-muted); }
+  .esito { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-bottom:4px; }
+  .cat { display:inline-block; font-size:12.5px; font-weight:600; border-radius:99px; padding:2px 10px; border:1px solid; }
+  .k0 { color:var(--k0); background:var(--k0-bg); border-color:var(--k0-bd); }
+  .k1 { color:var(--k1); background:var(--k1-bg); border-color:var(--k1-bd); }
+  .k2 { color:var(--k2); background:var(--k2-bg); border-color:var(--k2-bd); }
+  .k3 { color:var(--k3); background:var(--k3-bg); border-color:var(--k3-bd); }
+  .k4 { color:var(--k4); background:var(--k4-bg); border-color:var(--k4-bd); }
+  .kx { color:var(--text-muted); background:var(--surface-alt); border-color:var(--border-strong); }
+  .big { font-family:var(--display); font-size:26px; font-weight:700; line-height:1.15; }
+  .cor { display:inline-block; font-family:var(--mono); font-size:11px; font-weight:600; color:#FFFFFF; border-radius:4px; padding:0 5px; margin:0 1px; white-space:nowrap; vertical-align:1px; }
+  .c1 { background:var(--cor-1); } .c2a { background:var(--cor-2a); color:#1D1602; } .c2b { background:var(--cor-2b); } .c3 { background:var(--cor-3); } .cf { background:var(--text-muted); }
+  .pg { font-family:var(--mono); font-size:11px; color:var(--text-muted); }
+  .anno { font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.03em; border-radius:4px; padding:0 5px; white-space:nowrap; border:1px solid var(--border-strong); color:var(--text-secondary); background:var(--surface-alt); }
+  .anno.y23 { color:var(--accent-blue); border-color:var(--accent-blue-border); background:var(--accent-blue-bg); }
+  .nota { border-left:3px solid var(--accent-amber); background:var(--accent-amber-bg); border-radius:0 8px 8px 0; padding:7px 11px; margin-top:8px; font-size:13.5px; overflow-wrap:anywhere; }
+  .nota.info { border-left-color:var(--accent-blue); background:var(--accent-blue-bg); }
+  .nota.stop { border-left-color:var(--accent-red); background:var(--accent-red-bg); }
+  .nota.ok { border-left-color:var(--accent-green); background:var(--accent-green-bg); }
+  .nota.spenta { border-left-color:var(--border-strong); background:var(--surface-alt); color:var(--text-secondary); }
+  .nota strong { color:var(--text-primary); }
+  .passo { display:flex; gap:10px; padding:8px 0; border-bottom:1px dashed var(--border); }
+  .passo:last-child { border-bottom:none; }
+  .passo .ico { flex:0 0 26px; font-weight:700; text-align:center; font-family:var(--mono); font-size:13px; padding-top:1px; }
+  .passo .tx { flex:1 1 auto; font-size:14px; min-width:0; overflow-wrap:anywhere; }
+  .passo.att { background:var(--accent-blue-bg); border-radius:8px; border-bottom-color:transparent; padding:8px 8px; margin:2px -8px; }
+  .passo.att .ico { color:var(--accent-blue); }
+  .passo.esc .ico, .passo.esc .tx { color:var(--text-muted); }
+  .rg { display:flex; gap:8px; align-items:flex-start; padding:6px 0; border-bottom:1px dashed var(--border); font-size:13.5px; }
+  .rg:last-child { border-bottom:none; }
+  .rg .cl { flex:0 0 auto; white-space:nowrap; padding-top:1px; }
+  .rg .tx { flex:1 1 auto; min-width:0; overflow-wrap:anywhere; }
+  .rg.prev { background:var(--surface-alt); border-radius:8px; padding:6px 8px; margin:2px -8px; border-bottom-color:transparent; }
+  .lista li { margin:4px 0 4px 18px; font-size:13.5px; overflow-wrap:anywhere; }
+  .foot { margin-top:2.4rem; padding-top:1rem; border-top:1px solid var(--border-strong); font-size:12px; color:var(--text-muted); line-height:1.7; overflow-wrap:anywhere; }
+  .foot strong { color:var(--text-secondary); }
+  @media (max-width:640px) {
+    .headline { font-size:25px; }
+    .stage-w { display:none; }
+    .fl { min-width:0; width:100%; }
+    .big { font-size:22px; }
+    .seg span { padding:6px 9px; font-size:13px; }
+  }
+  @media print { .bar { position:static; } }
+</style>
+<style data-iphone="stile">
+/* L'avviso e' visibile per costruzione: lo nasconde solo la classe che la
+   sentinella mette quando JavaScript esiste, e lo rimostra quando il motore
+   muore. Nell'anteprima dell'iPhone nessuna delle due arriva. */
+#nomotore{background:#FCEBEB;border:1.5px solid #A32D2D;border-radius:10px;
+ padding:12px 15px;margin:0 0 1.1rem;font-size:13.5px;line-height:1.6;color:#0B0B0B;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+#nomotore strong{display:block;color:#A32D2D;font-size:15px;margin-bottom:4px}
+#nomotore p{margin:6px 0 0}
+#nomotore a{color:#A32D2D}
+#nomotore .nmurl{font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:.92em;word-break:break-all}
+#nomotore .nmerr{display:block;font-family:'SFMono-Regular',Consolas,Menlo,monospace;
+ font-size:11.5px;color:#A32D2D;margin-top:6px;word-break:break-word}
+#nomotore .nmerr:empty{display:none}
+html.js #nomotore{display:none}
+html.js.motore-ko #nomotore{display:block}
+
+#nmprivacy{background:#E2F4F5;border:1px solid #A7DBDE;border-radius:8px;padding:9px 13px;
+ margin:0 0 1rem;font-size:12.5px;line-height:1.55;color:#0B0B0B;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+@media print{#nmprivacy{display:none}}
+</style>
+</head>
+<body>
+<div class="nomotore" id="nomotore" role="alert">
+ <strong>Motore di calcolo non attivo</strong>
+ <p>I calcoli, i filtri e i comandi di questa pagina <b>non funzionano</b>: dove leggi «—» non c'è un
+ valore. Il testo resta leggibile, i numeri che dipendono dai tuoi dati no. Non usare questa pagina
+ per decidere una dose.</p>
+ <p>Su iPhone e iPad succede sempre con un file salvato sul telefono: si apre nell'<b>anteprima</b> —
+ dall'app File, da Mail, da WhatsApp —, che mostra la pagina ma non esegue il motore, e Apple non
+ permette di aprirlo in Safari. Sull'iPhone il tool funziona aperto da questo indirizzo, in Safari: <a class="nmurl" href="https://francescofugetto-ai.github.io/tool-icd-eziologia-web/">https://francescofugetto-ai.github.io/tool-icd-eziologia-web/</a> — poi Condividi, «Aggiungi alla schermata Home». Dopo la prima apertura funziona anche senza rete. Su computer e Android basta aprire il file.</p>
+ <span class="nmerr" id="nmerr"></span>
+</div>
+<div class="nmprivacy" id="nmprivacy">
+ <b>Quello che scrivi resta su questo dispositivo.</b> La pagina non invia niente in rete e non
+ salva niente: nessun dato esce da qui. Per la stessa ragione, <b>chiudendola il contenuto si
+ perde</b> — copia il referto dove ti serve prima di chiudere.
+</div>
+<div class="page">
+<header class="hero">
+  <div class="kicker">Strumento · Aritmie ventricolari · ESC 2022 e ESC 2023</div>
+  <h1 class="headline">ICD per eziologia — fuori dallo scompenso</h1>
+  <p class="lede"><strong>Come si usa.</strong> Scegli la <strong>malattia</strong> e l'<strong>evento</strong> (arresto, TV sostenuta, sincope, oppure nessuno: prevenzione primaria), poi i dati che lo strumento chiede per quella malattia. Ne esce l'<strong>indicazione all'ICD</strong> con classe, livello e pagina; per le cardiomiopatie <strong>prevale la ESC 2023</strong>, con la riga della 2022 accanto. Poi la <strong>cascata</strong>: le condizioni per impiantare, il tipo di dispositivo, il defibrillatore indossabile e che cosa fare se l'ICD non si può mettere. I calcolatori di rischio <strong>non si ricalcolano</strong>: si scrive il numero già ottenuto. <strong>Nessuna dose</strong>, e quindi niente rene. <strong>Azzera</strong>, in alto, ricomincia.</p>
+  <div class="meta-row">
+    <span class="meta-chip"><strong>Fonte</strong> 2022 ESC Guidelines, aritmie ventricolari e morte improvvisa · 2023 ESC Guidelines, cardiomiopatie</span>
+    <span class="meta-chip"><strong>Calcolo</strong> ESC 2022 Rec. Table 11–15, p. 4040; Rec. Table 22–50, pp. 4046–4090 · ESC 2023 Rec. Table 12, p. 3545; 23–30, pp. 3561–3574</span>
+  </div>
+</header>
+
+<div class="bar" id="bar" aria-live="polite">
+  <span class="lbl">ICD</span> <span id="barInd" class="cat kx">—</span>
+  <span class="lbl">Classe</span> <span id="barCl" class="cat kx">—</span>
+  <span class="lbl">Impianto</span> <span id="barImp" class="cat kx">—</span>
+  <span class="sp"></span>
+  <button class="btn" id="azzera" type="button">Azzera</button>
+</div>
+
+<div class="stage"><span class="stage-n">1</span><span class="stage-t">La malattia e l'evento</span><span class="stage-w">ESC 2022, sezione 7 · ESC 2023, sezione 7</span></div>
+<div class="card">
+  <div class="riga"><span class="fl">Eziologia<small>cardiopatia di base o malattia elettrica</small></span>
+    <select id="ez" aria-label="Eziologia">
+      <option value="">— scegli —</option>
+      <optgroup label="Cardiopatia ischemica">
+        <option value="cad">Coronaropatia cronica, dopo l'infarto</option>
+        <option value="vaso">Vasospasmo coronarico</option>
+      </optgroup>
+      <optgroup label="Cardiomiopatie (prevale la ESC 2023)">
+        <option value="dcm">Cardiomiopatia dilatativa (DCM)</option>
+        <option value="ndlvc">NDLVC (2023) · HNDCM (2022)</option>
+        <option value="lvnc">Non compattazione · ipertrabecolatura</option>
+        <option value="hcm">Cardiomiopatia ipertrofica (HCM)</option>
+        <option value="arvc">Cardiomiopatia aritmogena del VD (ARVC)</option>
+        <option value="rcm">Cardiomiopatia restrittiva (non amiloide)</option>
+        <option value="amil">Amiloidosi cardiaca (AL o ATTR)</option>
+      </optgroup>
+      <optgroup label="Altre cardiopatie">
+        <option value="nm">Malattie neuromuscolari</option>
+        <option value="sarc">Sarcoidosi cardiaca</option>
+        <option value="mioc">Miocardite</option>
+        <option value="chagas">Cardiomiopatia di Chagas</option>
+        <option value="valv">Valvulopatia</option>
+        <option value="chd">Cardiopatia congenita dell'adulto</option>
+      </optgroup>
+      <optgroup label="Malattie elettriche primarie">
+        <option value="fvi">FV idiopatica</option>
+        <option value="lqts">QT lungo congenito</option>
+        <option value="ats">Sindrome di Andersen-Tawil</option>
+        <option value="brs">Sindrome di Brugada</option>
+        <option value="ers">Ripolarizzazione precoce</option>
+        <option value="cpvt">TV polimorfa catecolaminergica (CPVT)</option>
+        <option value="sqts">QT corto</option>
+      </optgroup>
+    </select></div>
+  <div class="riga"><span class="fl">Evento<small>il più grave che il paziente ha avuto</small></span>
+    <span class="seg">
+      <label><input type="radio" name="ev" value="arresto"><span>arresto da FV/TV</span></label>
+      <label><input type="radio" name="ev" value="tvnt"><span>TV sostenuta non tollerata</span></label>
+      <label><input type="radio" name="ev" value="tvt"><span>TV sostenuta tollerata</span></label>
+      <label><input type="radio" name="ev" value="sinc"><span>sincope sospetta aritmica</span></label>
+      <label><input type="radio" name="ev" value="no"><span>nessuno</span></label>
+    </span></div>
+  <div class="riga hide" id="w_rev"><span class="fl">Causa reversibile<small id="revSub">ischemia acuta, elettroliti, farmaci, tossici</small></span>
+    <span class="seg">
+      <label><input type="radio" name="rev" value="no"><span>esclusa</span></label>
+      <label><input type="radio" name="rev" value="si"><span>presente</span></label>
+    </span></div>
+</div>
+
+<div class="stage" id="stage2"><span class="stage-n">2</span><span class="stage-t">I dati che decidono</span><span class="stage-w" id="stage2w">secondo la malattia</span></div>
+<div class="card" id="card2">
+  <p class="muted" id="vuoto2" style="font-size:13.5px">Scegli prima la malattia e l'evento: qui compaiono solo i dati che servono.</p>
+  <!-- funzione e scompenso -->
+  <div class="riga hide" id="w_fe"><span class="fl">FEVS (%)<small>la più recente, in terapia</small></span><input type="number" id="fe" min="5" max="85" step="1" inputmode="numeric" placeholder="—"><span class="vv" id="vFe">—</span></div>
+  <div class="riga hide" id="w_nyha"><span class="fl">Classe NYHA</span>
+    <span class="seg">
+      <label><input type="radio" name="nyha" value="1"><span>I</span></label>
+      <label><input type="radio" name="nyha" value="2"><span>II</span></label>
+      <label><input type="radio" name="nyha" value="3"><span>III</span></label>
+      <label><input type="radio" name="nyha" value="4"><span>IV</span></label>
+    </span></div>
+  <div class="riga hide" id="w_omt"><span class="fl">Mesi di terapia medica ottimale<small>dello scompenso, a dosi piene</small></span><input type="number" id="omt" min="0" max="240" step="0.5" inputmode="decimal" placeholder="—"><span class="vv" id="vOmt">—</span></div>
+  <div class="riga hide" id="w_ima"><span class="fl">Infarto nelle ultime 6 settimane?</span>
+    <span class="seg">
+      <label><input type="radio" name="ima" value="no"><span>no</span></label>
+      <label><input type="radio" name="ima" value="si"><span>sì</span></label>
+    </span></div>
+  <div class="riga hide" id="w_imaGg"><span class="fl">Giorni dall'infarto, oggi</span><input type="number" id="imaGg" min="0" max="365" step="1" inputmode="numeric" placeholder="—"><span class="vv" id="vIma">—</span></div>
+  <!-- genetica DCM/NDLVC -->
+  <div class="riga hide" id="w_gene"><span class="fl">Genotipo<small>variante patogena nota (ESC 2023, Tab. 21)</small></span>
+    <select id="gene" aria-label="Genotipo">
+      <option value="">— non detto —</option>
+      <option value="nessuno">nessuna variante ad alto rischio, o test negativo</option>
+      <option value="lmna">LMNA</option>
+      <option value="flnc">FLNC troncante</option>
+      <option value="tmem43">TMEM43</option>
+      <option value="pln">PLN</option>
+      <option value="dsp">DSP</option>
+      <option value="rbm20">RBM20</option>
+      <option value="emd">EMD o DES (nel testo, senza riga in Tab. 21)</option>
+    </select></div>
+  <div class="riga hide" id="w_rLmna"><span class="fl">Rischio LMNA a 5 anni (%)<small>dal calcolatore LMNA: Tool LMNA</small></span><input type="number" id="rLmna" min="0" max="100" step="0.1" inputmode="decimal" placeholder="—"><span class="vv" id="vLmna">—</span></div>
+  <div class="riga hide" id="w_rPln"><span class="fl">Rischio PLN a 5 anni (%)<small>dal punteggio PLN, calcolato altrove</small></span><input type="number" id="rPln" min="0" max="100" step="0.1" inputmode="decimal" placeholder="—"><span class="vv" id="vPln">—</span></div>
+  <div class="riga hide" id="w_giudG"><span class="fl">Il rischio del gene, nella decisione condivisa, conta come fattore aggiuntivo?<small>la ESC 2023 non fissa una soglia</small></span>
+    <span class="seg">
+      <label><input type="radio" name="giudG" value="si"><span>sì</span></label>
+      <label><input type="radio" name="giudG" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga hide" id="w_sesso"><span class="fl">Sesso</span>
+    <span class="seg">
+      <label><input type="radio" name="sesso" value="m"><span>uomo</span></label>
+      <label><input type="radio" name="sesso" value="f"><span>donna</span></label>
+    </span></div>
+  <!-- HCM -->
+  <div class="riga hide" id="w_eta16"><span class="fl">Età</span>
+    <span class="seg">
+      <label><input type="radio" name="eta16" value="si"><span>16 anni o più</span></label>
+      <label><input type="radio" name="eta16" value="no"><span>meno di 16</span></label>
+    </span></div>
+  <div class="riga hide" id="w_rHcm"><span class="fl">Rischio di morte improvvisa a 5 anni (%)<small id="rHcmSub">HCM Risk-SCD, dal calcolatore indicato dalla linea guida</small></span><input type="number" id="rHcm" min="0" max="100" step="0.01" inputmode="decimal" placeholder="—"><span class="vv" id="vHcm">—</span></div>
+  <!-- ARVC -->
+  <div class="riga hide" id="w_rvef"><span class="fl">FE del VD (%)<small>alla CMR</small></span><input type="number" id="rvef" min="5" max="85" step="1" inputmode="numeric" placeholder="—"><span class="vv" id="vRvef">—</span></div>
+  <div class="riga hide" id="w_fac"><span class="fl">FAC del VD (%)<small>all'eco; facoltativo</small></span><input type="number" id="fac" min="1" max="80" step="1" inputmode="numeric" placeholder="—"><span class="vv" id="vFac">—</span></div>
+  <div class="riga hide" id="w_rArvc"><span class="fl">Rischio ARVC a 5 anni (%)<small>calcolatore ARVC 2019 aggiornato: Tool ARVC; facoltativo</small></span><input type="number" id="rArvc" min="0" max="100" step="0.1" inputmode="decimal" placeholder="—"><span class="vv" id="vArvc">—</span></div>
+  <div class="riga hide" id="w_giudA"><span class="fl">Il rischio del calcolatore, nella decisione condivisa, è alto?<small>la ESC 2023 non fissa una soglia</small></span>
+    <span class="seg">
+      <label><input type="radio" name="giudA" value="si"><span>sì</span></label>
+      <label><input type="radio" name="giudA" value="no"><span>no</span></label>
+    </span></div>
+  <!-- neuromuscolari -->
+  <div class="riga hide" id="w_nmTipo"><span class="fl">Quale malattia</span>
+    <span class="seg">
+      <label><input type="radio" name="nmTipo" value="dm1"><span>distrofia miotonica</span></label>
+      <label><input type="radio" name="nmTipo" value="lgmd"><span>cingoli 1B · Emery-Dreifuss</span></label>
+      <label><input type="radio" name="nmTipo" value="dmd"><span>Duchenne · Becker</span></label>
+      <label><input type="radio" name="nmTipo" value="altra"><span>altra</span></label>
+    </span></div>
+  <div class="riga hide" id="w_bbr"><span class="fl">La TV è da rientro branca-branca?<small>allo studio elettrofisiologico</small></span>
+    <span class="seg">
+      <label><input type="radio" name="bbr" value="si"><span>sì</span></label>
+      <label><input type="radio" name="bbr" value="no"><span>no, o non inducibile</span></label>
+      <label><input type="radio" name="bbr" value="nd"><span>studio non fatto</span></label>
+    </span></div>
+  <div class="riga hide" id="w_nmAv"><span class="fl">Ritardo della conduzione AV?</span>
+    <span class="seg">
+      <label><input type="radio" name="nmAv" value="si"><span>sì</span></label>
+      <label><input type="radio" name="nmAv" value="no"><span>no</span></label>
+    </span></div>
+  <!-- sarcoidosi -->
+  <div class="riga hide" id="w_infl"><span class="fl">Infiammazione acuta<small>alla PET o alla CMR</small></span>
+    <span class="seg">
+      <label><input type="radio" name="infl" value="risolta"><span>risolta</span></label>
+      <label><input type="radio" name="infl" value="attiva"><span>ancora attiva</span></label>
+    </span></div>
+  <!-- miocardite -->
+  <div class="riga hide" id="w_fase"><span class="fl">Fase della miocardite</span>
+    <span class="seg">
+      <label><input type="radio" name="fase" value="acuta"><span>acuta</span></label>
+      <label><input type="radio" name="fase" value="cronica"><span>cronica, dopo la miocardite</span></label>
+    </span></div>
+  <!-- Chagas -->
+  <div class="riga hide" id="w_aad"><span class="fl">Amiodarone e betabloccante<small>già provati</small></span>
+    <span class="seg">
+      <label><input type="radio" name="aad" value="si"><span>inefficaci o non tollerati</span></label>
+      <label><input type="radio" name="aad" value="no"><span>non ancora provati</span></label>
+    </span></div>
+  <!-- amiloidosi -->
+  <div class="riga hide" id="w_fenoR"><span class="fl">Fenotipo restrittivo?</span>
+    <span class="seg">
+      <label><input type="radio" name="fenoR" value="si"><span>sì</span></label>
+      <label><input type="radio" name="fenoR" value="no"><span>no</span></label>
+    </span></div>
+  <!-- congenite -->
+  <div class="riga hide" id="w_chdTipo"><span class="fl">Quale cardiopatia</span>
+    <span class="seg">
+      <label><input type="radio" name="chdTipo" value="biv"><span>biventricolare, VS sistemico</span></label>
+      <label><input type="radio" name="chdTipo" value="tof"><span>Fallot riparato</span></label>
+      <label><input type="radio" name="chdTipo" value="univ"><span>ventricolo unico o VD sistemico</span></label>
+    </span></div>
+  <div class="riga hide" id="w_chdSempl"><span class="fl">Cardiopatia semplice o moderata, funzione biventricolare conservata?</span>
+    <span class="seg">
+      <label><input type="radio" name="chdSempl" value="si"><span>sì</span></label>
+      <label><input type="radio" name="chdSempl" value="no"><span>no</span></label>
+    </span></div>
+  <!-- QT lungo, CPVT, Brugada -->
+  <div class="riga hide" id="w_ter"><span class="fl">Terapia<small>betabloccante e farmaci del genotipo</small></span>
+    <span class="seg">
+      <label><input type="radio" name="ter" value="in"><span>già in corso</span></label>
+      <label><input type="radio" name="ter" value="nt"><span>non tollerata o controindicata</span></label>
+      <label><input type="radio" name="ter" value="no"><span>non ancora iniziata</span></label>
+    </span></div>
+  <div class="riga hide" id="w_r123"><span class="fl">Rischio 1-2-3 LQTS a 5 anni (%)<small>dalla Tab. 2 di Mazzanti 2018: Tool 1-2-3 LQTS</small></span><input type="number" id="r123" min="0" max="100" step="0.1" inputmode="decimal" placeholder="—"><span class="vv" id="v123">—</span></div>
+  <div class="riga hide" id="w_giudQ"><span class="fl">Profilo ad alto rischio secondo il calcolatore?<small>la linea guida non fissa la soglia</small></span>
+    <span class="seg">
+      <label><input type="radio" name="giudQ" value="si"><span>sì</span></label>
+      <label><input type="radio" name="giudQ" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga hide" id="w_cpvtTer"><span class="fl">Terapia della CPVT</span>
+    <span class="seg">
+      <label><input type="radio" name="cpvtTer" value="max"><span>betabloccante alla dose massima e flecainide</span></label>
+      <label><input type="radio" name="cpvtTer" value="no"><span>non ancora</span></label>
+    </span></div>
+  <div class="riga hide" id="w_tipo1"><span class="fl">ECG di tipo 1</span>
+    <span class="seg">
+      <label><input type="radio" name="tipo1" value="spont"><span>spontaneo</span></label>
+      <label><input type="radio" name="tipo1" value="ind"><span>solo indotto</span></label>
+    </span></div>
+  <div class="riga hide" id="w_pes"><span class="fl" id="pesFl">Stimolazione ventricolare programmata (PES)<small id="pesSub">TV monomorfa sostenuta inducibile?</small></span>
+    <span class="seg">
+      <label><input type="radio" name="pes" value="nf"><span>non fatta</span></label>
+      <label><input type="radio" name="pes" value="pos"><span>positiva</span></label>
+      <label><input type="radio" name="pes" value="neg"><span>negativa</span></label>
+    </span></div>
+  <!-- reperti a casella -->
+  <div id="w_reperti" class="hide">
+    <h4 id="repH">Reperti</h4>
+    <label class="chk hide" id="w_tvns"><input type="checkbox" id="tvns"><span class="tx">TV non sostenuta (TVNS)<small>al Holter o al monitoraggio</small></span></label>
+    <label class="chk hide" id="w_lge"><input type="checkbox" id="lge"><span class="tx" id="lgeTx">LGE alla CMR</span></label>
+    <label class="chk hide" id="w_lgeMin"><input type="checkbox" id="lgeMin"><span class="tx">LGE minore alla CMR<small>dopo la fine dell'infiammazione acuta</small></span></label>
+    <label class="chk hide" id="w_avDelay"><input type="checkbox" id="avDelay"><span class="tx">Ritardo della conduzione AV<small>per la riga LMNA della 2022</small></span></label>
+    <label class="chk hide" id="w_ve200"><input type="checkbox" id="ve200"><span class="tx">Più di 200 extrasistoli ventricolari nelle 24 h</span></label>
+    <label class="chk hide" id="w_lge15"><input type="checkbox" id="lge15"><span class="tx">LGE esteso, almeno il 15% della massa del VS</span></label>
+    <label class="chk hide" id="w_aneur"><input type="checkbox" id="aneur"><span class="tx">Aneurisma apicale del VS</span></label>
+    <label class="chk hide" id="w_bp"><input type="checkbox" id="bp"><span class="tx">Risposta pressoria anomala allo sforzo<small>la PAS non sale di 20 mmHg, o cala di oltre 20 dal picco</small></span></label>
+    <label class="chk hide" id="w_sarcomut"><input type="checkbox" id="sarcomut"><span class="tx">Variante sarcomerica patogena</span></label>
+    <label class="chk hide" id="w_noCalc"><input type="checkbox" id="noCalc"><span class="tx">Il calcolatore non vale qui<small>atleta d'élite, malattia metabolica o infiltrativa (Anderson-Fabry), sindrome (Noonan), prima o dopo la miectomia</small></span></label>
+    <label class="chk hide" id="w_asa"><input type="checkbox" id="asa"><span class="tx">Dopo alcolizzazione settale<small>il calcolatore si usa, validato in un solo studio</small></span></label>
+    <label class="chk hide" id="w_arvcDef"><input type="checkbox" id="arvcDef"><span class="tx">ARVC definita<small>criteri diagnostici soddisfatti</small></span></label>
+    <label class="chk hide" id="w_sint"><input type="checkbox" id="sint"><span class="tx" id="sintTx">Sintomi sospetti di aritmia</span></label>
+    <label class="chk hide" id="w_palp"><input type="checkbox" id="palp"><span class="tx">Palpitazioni molto sospette di aritmia ventricolare</span></label>
+    <label class="chk hide" id="w_nmPace"><input type="checkbox" id="nmPace"><span class="tx">Indicazione al pacing</span></label>
+    <label class="chk hide" id="w_nmFatt"><input type="checkbox" id="nmFatt"><span class="tx">Altri fattori di rischio aritmico<small>età, espansione CTG, morte improvvisa in famiglia, disturbi di conduzione, PR lungo, BBS, aritmie atriali, TVNS, disfunzione del VS, alterazioni alla CMR</small></span></label>
+    <label class="chk hide" id="w_nmEcg"><input type="checkbox" id="nmEcg"><span class="tx">PR ≥240 ms o QRS ≥120 ms, oppure oltre i 40 anni con aritmie sopraventricolari o LGE, oppure PR o QRS allungati all'improvviso</span></label>
+    <label class="chk hide" id="w_pace"><input type="checkbox" id="pace"><span class="tx">Indicazione al pacing permanente per BAV di alto grado</span></label>
+    <label class="chk hide" id="w_aort"><input type="checkbox" id="aort"><span class="tx">Valvulopatia aortica, o TV dopo un intervento valvolare</span></label>
+    <label class="chk hide" id="w_disfMod"><input type="checkbox" id="disfMod"><span class="tx">Disfunzione ventricolare almeno moderata</span></label>
+    <label class="chk hide" id="w_disfAv"><input type="checkbox" id="disfAv"><span class="tx">Disfunzione avanzata del ventricolo unico o del VD sistemico</span></label>
+    <label class="chk hide" id="w_chdFatt"><input type="checkbox" id="chdFatt"><span class="tx">Fattori di rischio aggiuntivi<small>TVNS, NYHA II–III, insufficienza grave della valvola AV, QRS ≥140 ms nella trasposizione</small></span></label>
+    <label class="chk hide" id="w_tofFatt"><input type="checkbox" id="tofFatt"><span class="tx">Combinazione di fattori di rischio<small>disfunzione moderata del VD o del VS, cicatrice estesa del VD alla CMR, QRS ≥180 ms, frammentazione grave del QRS</small></span></label>
+    <label class="chk hide" id="w_erpAlto"><input type="checkbox" id="erpAlto"><span class="tx">ERP ad alto rischio all'ECG<small>onde J sopra i 2 mm, punto J e ST che cambiano da un tracciato all'altro</small></span></label>
+    <label class="chk hide" id="w_famSD"><input type="checkbox" id="famSD"><span class="tx">In famiglia morte improvvisa giovanile inspiegata, o ERS</span></label>
+    <label class="chk conf hide" id="w_valutati"><input type="checkbox" id="valutati"><span class="tx"><b>Ho valutato i reperti di questo riquadro</b><small>quelli non segnati sono assenti, non sconosciuti</small></span></label>
+  </div>
+</div>
+
+<div class="stage"><span class="stage-n">3</span><span class="stage-t">Prima di impiantare</span><span class="stage-w">Rec. Table 11, p. 4040 · Rec. Table 50, p. 4090</span></div>
+<div class="card">
+  <div class="riga"><span class="fl">Attesa di vita di buona qualità oltre 1 anno?</span>
+    <span class="seg">
+      <label><input type="radio" name="vita" value="si"><span>sì</span></label>
+      <label><input type="radio" name="vita" value="no"><span>no</span></label>
+    </span></div>
+  <label class="chk"><input type="checkbox" id="incess"><span class="tx">Aritmia ventricolare incessante, ora</span></label>
+  <label class="chk"><input type="checkbox" id="anziano"><span class="tx">Anziano in cui età e comorbidità tolgono il beneficio atteso</span></label>
+  <label class="chk"><input type="checkbox" id="trapianto"><span class="tx">In attesa di trapianto cardiaco</span></label>
+  <label class="chk"><input type="checkbox" id="lvad"><span class="tx">Portatore di assistenza ventricolare sinistra (LVAD)</span></label>
+</div>
+
+<div class="stage"><span class="stage-n">4</span><span class="stage-t">Il dispositivo</span><span class="stage-w">Rec. Table 12–15, p. 4040 · Rec. Table 20, p. 4043</span></div>
+<div class="card">
+  <div class="riga"><span class="fl">L'ICD si può impiantare adesso?</span>
+    <span class="seg">
+      <label><input type="radio" name="icdPoss" value="si"><span>sì</span></label>
+      <label><input type="radio" name="icdPoss" value="temp"><span>per ora no</span></label>
+      <label><input type="radio" name="icdPoss" value="no"><span>non disponibile, controindicato o rifiutato</span></label>
+    </span></div>
+  <label class="chk"><input type="checkbox" id="bradi"><span class="tx">Serve il pacing antibradicardico</span></label>
+  <label class="chk"><input type="checkbox" id="crt"><span class="tx">C'è indicazione alla resincronizzazione (CRT)</span></label>
+  <label class="chk"><input type="checkbox" id="atp"><span class="tx">Si prevede di servirsi dell'ATP<small>TV monomorfe ricorrenti</small></span></label>
+</div>
+
+<div class="stage"><span class="stage-n">5</span><span class="stage-t">L'indicazione</span><span class="stage-w">la riga della fonte, e la 2022 accanto alla 2023</span></div>
+<div class="card" id="outInd"></div>
+
+<div class="stage"><span class="stage-n">6</span><span class="stage-t">La cascata</span><span class="stage-w">condizioni, dispositivo, ponte, alternative</span></div>
+<div class="card" id="outCasc"></div>
+
+<div class="card"><h3>Confronto con le altre linee guida del progetto</h3><div id="outConf"></div></div>
+<div class="card"><h3>Incoerenze e ambiguità della fonte</h3><div id="outInc"></div></div>
+<div class="card"><h3>Limiti per questo paziente</h3><ul class="lista" id="limiti"></ul></div>
+
+<div class="foot">
+  <strong>Fonti.</strong> Zeppenfeld K, Tfelt-Hansen J, de Riva M, et al. 2022 ESC Guidelines for the management of patients with ventricular arrhythmias and the prevention of sudden cardiac death. <em>Eur Heart J</em> 2022;43:3997–4126, doi:10.1093/eurheartj/ehac262 — ICD, aspetti generali e prevenzione secondaria (Rec. Table 11–15, pp. 4040–4041), complicanze (Rec. Table 20, p. 4043), LVAD (Rec. Table 19, p. 4042), malattia per malattia (Rec. Table 22–46, pp. 4046–4087), trapianto (Rec. Table 48, p. 4089), anziani (Rec. Table 50, p. 4090). Arbelo E, Protonotarios A, Gimeno JR, et al. 2023 ESC Guidelines for the management of cardiomyopathies. <em>Eur Heart J</em> 2023;44:3503–3626, doi:10.1093/eurheartj/ehad194 — ICD nelle cardiomiopatie (Rec. Table 12, p. 3545), HCM (Rec. Table 23, pp. 3561–3562), DCM (Rec. Table 24 e Tab. 21, p. 3566), NDLVC (Rec. Table 26, p. 3568), ARVC (Rec. Table 29, p. 3571; Fig. 18, p. 3572), RCM (Rec. Table 30, p. 3574). Ogni classe mostrata porta la sua pagina. I confronti con le altre linee guida vengono dalle schede del progetto.<br><br>
+  Strumento personale di studio e consultazione: <strong>non sostituisce il giudizio clinico né la decisione condivisa con il paziente</strong>. Non calcola i punteggi di rischio e non calcola dosi. Non salva i dati e non li invia in rete.
+</div>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  /* ═══ DATI ═══════════════════════════════════════════════════════════════
+     ESC 2022 = 2022 ESC Guidelines, aritmie ventricolari e morte improvvisa
+     (Eur Heart J 2022;43:3997-4126). ESC 2023 = 2023 ESC Guidelines,
+     cardiomiopatie (Eur Heart J 2023;44:3503-3626): nelle cardiomiopatie
+     prevale dove dice altro (decisione del medico, 03/10/2026).
+     Soglie: ognuna con la pagina stampata della fonte. */
+  var SOGLIE = {
+    VITA_ANNI: 1,        // ICD solo con attesa di vita di buona qualità >1 anno: ESC 2022 Rec. Table 11, p. 4040; ESC 2023 Rec. Table 12, p. 3545
+    OMT_MESI: 3,         // ">=3 mesi di OMT": ESC 2022 Rec. Table 24, p. 4047; Rec. Table 28, p. 4057; Rec. Table 38, p. 4072 — ">3 mesi" nella ESC 2023, pp. 3566 e 3568
+    IMA_GIORNI: 40,      // ICD profilattico non nei primi 40 giorni dopo l'IMA (DINAMIT, IRIS): ESC 2022, p. 4046
+    IMA_SETT_GG: 42,     // la FEVS per l'ICD si valuta dopo le prime 6 settimane: ESC 2022, p. 4046; rimisura a 6-12 settimane, Rec. Table 23, p. 4046
+    CAD_FE_I: 35,        // CAD, NYHA II-III, FEVS <=35%: I A, Rec. Table 24, p. 4047
+    CAD_FE_NYHA1: 30,    // CAD, NYHA I, FEVS <=30%: IIa B, p. 4047
+    CAD_FE_TVNS: 40,     // CAD, FEVS <=40%, TVNS e PES positiva: IIa B, p. 4047
+    CAD_FE_TVMS: 40,     // TVMS tollerata con FEVS >=40%: ablazione o ICD IIa C, p. 4047; sotto il 40% ICD I nella sola Fig. 16, p. 4049
+    DCM_FE: 35,          // DCM, LVEF <=35%: IIa A, ESC 2022 p. 4057; ESC 2023 p. 3566 (NDLVC p. 3568)
+    DCM_FE_FATT: 50,     // DCM, LVEF <50% e >=2 fattori: IIa C, ESC 2022 p. 4057
+    LMNA_2022: 10,       // LMNA, rischio a 5 anni >=10%: IIa B, ESC 2022 p. 4057 (la ESC 2023 non adotta la soglia, p. 3565)
+    T21_FE: 45,          // predittori della Tab. 21: LVEF <45%, ESC 2023 p. 3566
+    HCM_ETA: 16,         // HCM Risk-SCD dai 16 anni, HCM Risk-Kids sotto: ESC 2022 p. 4062; ESC 2023 p. 3561
+    HCM_ALTO: 6,         // >=6%: IIa B, ESC 2022 p. 4062; ESC 2023 p. 3562
+    HCM_INT: 4,          // >=4 e <6%: ESC 2022 IIb B (IIa B con un modificatore), ESC 2023 IIb B, p. 3562
+    HCM_FE: 50,          // FEVS <50%: modificatore, ESC 2022 p. 4062; ESC 2023 p. 3562
+    ARVC22_FAC: 17,      // disfunzione severa del VD: FAC <=17% o FE VD <=35%, ESC 2022 p. 4059
+    ARVC22_RV_SEV: 35,
+    ARVC22_LV_SEV: 35,   // LVEF <=35%: regole della DCM, ESC 2022 p. 4059
+    ARVC22_RV_MOD: 40,   // disfunzione moderata: VD <40%, VS <45%, ESC 2022 p. 4059
+    ARVC22_LV_MOD: 45,
+    ARVC23_RV: 40,       // caratteristiche ad alto rischio: RVEF <40%, LVEF <45%, ESC 2023 Rec. Table 29 nota c, p. 3571
+    ARVC23_LV: 45,
+    SARC_FE: 35,         // sarcoidosi, LVEF <=35%: I B; >35% con LGE significativo IIa B; 35-50% PES, ESC 2022 p. 4067
+    SARC_FE_PES: 50,
+    CHD_FE: 35           // congenite, VS sistemico, NYHA II-III, FE <=35%: I C, ESC 2022 p. 4072
+  };
+
+  /* Le righe: [fonte, classe, livello, testo riformulato, pagina].
+     Fonte: "22" e "23" = tabella di raccomandazioni; "f22" = solo nella figura
+     (classe senza riga in tabella); "t22", "t23" = testo, senza classe. */
+  var RIGHE = {
+    // ── generali ESC 2022 (Rec. Table 11-15, 19-21, 48, 50)
+    g_sec:   ["22", "I", "A", "FV documentata o TV non tollerata emodinamicamente, senza cause reversibili: ICD", "ESC 2022, Rec. Table 12, p. 4040"],
+    g_vita:  ["22", "I", "C", "L'ICD si impianta solo con un'attesa di sopravvivenza di buona qualità oltre 1 anno", "ESC 2022, Rec. Table 11, p. 4040"],
+    g_inc:   ["22", "III", "C", "Niente ICD con aritmie ventricolari incessanti, finché non sono controllate", "ESC 2022, Rec. Table 11, p. 4040"],
+    g_amio:  ["22", "IIb", "C", "TV/FV con indicazione all'ICD, ma ICD non disponibile, controindicato o rifiutato: amiodarone, se non controindicato", "ESC 2022, Rec. Table 12, p. 4040"],
+    g_abl:   ["22", "IIb", "C", "Nelle stesse tre situazioni, con TV monomorfa sostenuta o TV polimorfa/FV innescate da extrasistoli di morfologia simile: ablazione transcatetere", "ESC 2022, Rec. Table 12, p. 4040"],
+    g_sicd:  ["22", "IIa", "B", "ICD sottocutaneo in alternativa al transvenoso, se non servono pacing antibradicardico, CRT o ATP", "ESC 2022, Rec. Table 13, p. 4040"],
+    g_crt:   ["22", "I", "C", "Con indicazione all'ICD si valuta sempre se il paziente trarrebbe beneficio da un CRT-D", "ESC 2022, Rec. Table 14, p. 4040"],
+    g_wcd:   ["22", "IIa", "C", "WCD nell'adulto con indicazione all'ICD in prevenzione secondaria che per ora non può riceverlo", "ESC 2022, Rec. Table 15, p. 4040"],
+    g_wcdIma:["22", "IIb", "B", "WCD nella prima fase dopo un infarto, in pazienti selezionati", "ESC 2022, Rec. Table 15, p. 4041"],
+    g_wcdNo: ["t22", null, null, "Fuori da questi casi (per esempio miocardite acuta, gravidanza) i dati sul WCD in prevenzione primaria sono scarsi e non c'è raccomandazione", "ESC 2022, p. 4040"],
+    g_mono:  ["22", "I", "A", "In prevenzione primaria, senza indicazione presente o attesa al pacing atriale o sequenziale: ICD monocamerale anziché bicamerale", "ESC 2022, Rec. Table 20, p. 4043"],
+    g_coil:  ["22", "IIa", "C", "Elettrocatetere a un solo coil piuttosto che a due (complicanze minori all'estrazione)", "ESC 2022, Rec. Table 20, p. 4043"],
+    g_fine:  ["22", "I", "C", "Prima dell'impianto, discussione informata con paziente e famiglia sulla disattivazione e decisione condivisa", "ESC 2022, Rec. Table 21, p. 4043"],
+    g_lvad:  ["22", "IIa", "B", "Portatore di LVAD con aritmie ventricolari sostenute sintomatiche: ICD", "ESC 2022, Rec. Table 19, p. 4042"],
+    g_tx:    ["22", "IIa", "C", "In attesa di trapianto cardiaco: ICD in prevenzione primaria", "ESC 2022, Rec. Table 48, p. 4089"],
+    g_txWcd: ["22", "IIb", "C", "In attesa di trapianto cardiaco: WCD", "ESC 2022, Rec. Table 48, p. 4089"],
+    g_anz:   ["22", "IIb", "B", "Anziano in cui età e comorbidità non lasciano attendere beneficio: si può non impiantare l'ICD in prevenzione primaria", "ESC 2022, Rec. Table 50, p. 4090"],
+    g_rev:   ["22", "I", "A", "La riga dell'ICD in prevenzione secondaria vale in assenza di cause reversibili: prima si corregge la causa", "ESC 2022, Rec. Table 12, p. 4040"],
+    // ── generali ESC 2023, cardiomiopatie (Rec. Table 12, p. 3545)
+    c_vita:  ["23", "I", "C", "L'ICD si impianta solo con un'attesa di sopravvivenza di buona qualità oltre 1 anno", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_cond:  ["23", "I", "C", "Decisione condivisa sull'ICD: sulle prove, sulle preferenze e i valori della persona, con benefici e danni capiti", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_couns: ["23", "I", "C", "Prima dell'impianto: informazione su shock inappropriati, complicanze, conseguenze sociali, sul lavoro e alla guida", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_inc:   ["23", "III", "C", "Niente ICD con aritmie ventricolari incessanti, finché non sono controllate", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_tvt:   ["23", "IIa", "C", "Cardiomiopatia con TV emodinamicamente tollerata, senza cause reversibili: ICD", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_crt:   ["23", "I", "A", "Con indicazione all'ICD si valuta se il paziente trarrebbe beneficio dalla CRT", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_sicd:  ["23", "IIa", "B", "ICD sottocutaneo in alternativa al transvenoso, se non si prevedono pacing, CRT o ATP", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_wcd:   ["23", "IIa", "C", "WCD nell'adulto con indicazione in prevenzione secondaria che per ora non può ricevere l'ICD", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_strat: ["23", "I", "C", "Nessuna riga per l'ICD adesso: stratificazione completa del rischio ripetuta ogni 1–2 anni, o quando cambia la clinica", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_pm:    ["23", "IIa", "C", "Se serve un pacemaker, prima si stratifica il rischio per decidere se serve un ICD", "ESC 2023, Rec. Table 12, p. 3545"],
+    c_score: ["23", "IIa", "B", "Punteggi validati come aiuto alla decisione condivisa nella DCM, nella NDLVC e nell'ARVC (I B nella HCM)", "ESC 2023, Rec. Table 12, p. 3545"],
+    // ── coronaropatia e vasospasmo (Rec. Table 22-24, pp. 4046-4047; Fig. 15-16)
+    cad_sec:     ["22", "I", "A", "Coronaropatia: FV o TV non tollerata comparse oltre 48 h dall'infarto, senza ischemia in corso: ICD", "ESC 2022, Rec. Table 24, p. 4047"],
+    cad_ia:      ["22", "I", "A", "Coronaropatia, scompenso sintomatico NYHA II–III, FEVS ≤35% nonostante almeno 3 mesi di terapia ottimale: ICD", "ESC 2022, Rec. Table 24, p. 4047"],
+    cad_nyha1:   ["22", "IIa", "B", "Coronaropatia in NYHA I con FEVS ≤30% nonostante almeno 3 mesi di terapia ottimale: ICD", "ESC 2022, Rec. Table 24, p. 4047"],
+    cad_tvns:    ["22", "IIa", "B", "Coronaropatia, FEVS ≤40% nonostante almeno 3 mesi di terapia ottimale, TVNS e TV monomorfa sostenuta inducibile alla PES: ICD", "ESC 2022, Rec. Table 24, p. 4047"],
+    cad_pesTvns: ["f22", "I", null, "FEVS ≤40% con TVNS: PES per decidere (classe I nella sola Fig. 15; in tabella la PES ha la classe solo per la sincope)", "ESC 2022, Fig. 15, p. 4048"],
+    cad_pesSinc: ["22", "I", "C", "Sincope dopo uno STEMI che resta inspiegata dopo la valutazione non invasiva: PES", "ESC 2022, Rec. Table 24, p. 4047"],
+    cad_sincFig: ["f22", "IIa", null, "Sincope, FEVS ≤40% e TV monomorfa sostenuta inducibile alla PES, senza TVNS: ICD nella sola Fig. 15 (la riga della tabella chiede la TVNS)", "ESC 2022, Fig. 15, p. 4048"],
+    cad_ilr:     ["t22", null, null, "PES negativa e sincope ancora inspiegata: loop recorder impiantabile (classe I nella Fig. 15, presa dalla linea guida ESC 2018 sulla sincope)", "ESC 2022, Fig. 15, p. 4048"],
+    cad_preserve:["t22", null, null, "FEVS conservata o lievemente ridotta: nessun dato per l'ICD profilattico; la PES serve per la sincope inspiegata", "ESC 2022, p. 4047"],
+    cad_nyha4:   ["t22", null, null, "NYHA IV: la riga della tabella dice NYHA II–III, la Fig. 15 «NYHA ≥II». Lettura prudente, la tabella: nessuna riga", "ESC 2022, Rec. Table 24, p. 4047; Fig. 15, p. 4048"],
+    cad_tvtIcd:  ["22", "IIa", "C", "TV monomorfa sostenuta tollerata e FEVS ≥40%: ICD se l'ablazione fallisce, non è disponibile o non è voluta", "ESC 2022, Rec. Table 24, p. 4047"],
+    cad_tvtAbl:  ["22", "IIa", "C", "TV monomorfa sostenuta tollerata e FEVS ≥40%: ablazione in un centro esperto in alternativa all'ICD, se si raggiungono gli obiettivi procedurali (TV non inducibile, elettrogrammi tardivi eliminati)", "ESC 2022, Rec. Table 24, p. 4047"],
+    cad_tvtFig:  ["f22", "I", null, "TV monomorfa sostenuta tollerata con FEVS <40%: ICD nella sola Fig. 16 (in tabella la classe I è per la FV e la TV non tollerata)", "ESC 2022, Fig. 16, p. 4049"],
+    cad_ablPre:  ["22", "IIb", "B", "Candidato all'ICD: ablazione subito prima o subito dopo l'impianto, per ridurre TV e shock", "ESC 2022, Rec. Table 24, p. 4047"],
+    cad_40:      ["t22", null, null, "Nei primi 40 giorni dopo l'infarto l'ICD profilattico non ha ridotto la mortalità (DINAMIT, IRIS) e non è raccomandato", "ESC 2022, p. 4046"],
+    cad_6s:      ["t22", null, null, "La FEVS che decide l'ICD si misura dopo le prime 6 settimane: prima non distingue lo stordimento dal rimodellamento", "ESC 2022, p. 4046"],
+    cad_rival:   ["22", "I", "C", "FEVS ≤40% alla dimissione: rimisurarla a 6–12 settimane dall'infarto per decidere l'ICD in prevenzione primaria", "ESC 2022, Rec. Table 23, p. 4046"],
+    cad_omt:     ["t22", null, null, "Le righe dell'ICD primario nella coronaropatia chiedono almeno 3 mesi di terapia medica ottimale: si rivaluta dopo", "ESC 2022, Rec. Table 24, p. 4047"],
+    vaso_icd:    ["22", "IIa", "C", "Sopravvissuto a un arresto cardiaco da spasmo coronarico: ICD", "ESC 2022, Rec. Table 22, p. 4046"],
+    vaso_altro:  ["t22", null, null, "La riga riguarda i sopravvissuti ad arresto. Gli episodi si sopprimono con i calcioantagonisti; i betabloccanti possono scatenarli", "ESC 2022, p. 4046"],
+    // ── DCM e HNDCM 2022 (Rec. Table 28, pp. 4057-4058); DCM e NDLVC 2023 (Rec. Table 24 e 26)
+    dcm_sec22:   ["22", "I", "B", "DCM o HNDCM sopravvissuta ad arresto da TV/FV, o con TV monomorfa sostenuta non tollerata: ICD", "ESC 2022, Rec. Table 28, p. 4058"],
+    dcm_tvt22:   ["22", "IIa", "C", "DCM o HNDCM con TV monomorfa sostenuta tollerata: ICD", "ESC 2022, Rec. Table 28, p. 4058"],
+    dcm_iia22:   ["22", "IIa", "A", "DCM o HNDCM, scompenso sintomatico NYHA II–III, LVEF ≤35% dopo almeno 3 mesi di terapia ottimale: ICD", "ESC 2022, Rec. Table 28, p. 4057"],
+    dcm_lmna22:  ["22", "IIa", "B", "Variante patogena LMNA con rischio stimato a 5 anni ≥10% e TVNS, LVEF <50% o ritardo della conduzione AV: ICD", "ESC 2022, Rec. Table 28, p. 4057"],
+    dcm_2f22:    ["22", "IIa", "C", "LVEF <50% con almeno 2 fattori fra sincope, LGE, TV monomorfa sostenuta inducibile, varianti patogene di PLN, FLNC, RBM20 (per LMNA la riga rimanda alle sue raccomandazioni): ICD", "ESC 2022, Rec. Table 28, p. 4057"],
+    dcm_ef22:    ["22", "IIa", "C", "Sincope che resta inspiegata dopo la valutazione non invasiva: studio elettrofisiologico", "ESC 2022, Rec. Table 28, p. 4057"],
+    dcm_omt22:   ["t22", null, null, "Prima dell'ICD in prevenzione primaria si rivalutano funzione e clinica dopo 3 mesi di terapia ottimale", "ESC 2022, p. 4055"],
+    dcm_sec23:   ["23", "I", "B", "DCM sopravvissuta ad arresto o ripresa da un'aritmia ventricolare con instabilità emodinamica: ICD", "ESC 2023, Rec. Table 24, p. 3566"],
+    dcm_iia23:   ["23", "IIa", "A", "DCM, scompenso sintomatico, LVEF ≤35% nonostante più di 3 mesi di terapia ottimale: ICD", "ESC 2023, Rec. Table 24, p. 3566"],
+    dcm_gen23:   ["23", "IIa", "B", "Il genotipo entra nella stima del rischio di morte improvvisa", "ESC 2023, Rec. Table 24, p. 3566"],
+    dcm_hrF23:   ["23", "IIa", "C", "Genotipo ad alto rischio, LVEF >35% e fattori aggiuntivi della Tab. 21: ICD", "ESC 2023, Rec. Table 24, p. 3566"],
+    dcm_hr23:    ["23", "IIb", "C", "Genotipo ad alto rischio, LVEF >35%, senza fattori aggiuntivi: ICD in pazienti selezionati", "ESC 2023, Rec. Table 24, p. 3566"],
+    dcm_noHrF23: ["23", "IIb", "C", "Senza genotipo ad alto rischio, LVEF >35% con fattori aggiuntivi (sincope, LGE alla CMR): ICD", "ESC 2023, Rec. Table 24, p. 3566"],
+    dcm_omt23:   ["t23", null, null, "La riga della LVEF ≤35% chiede più di 3 mesi di terapia ottimale", "ESC 2023, Rec. Table 24, p. 3566"],
+    dcm_nyha1:   ["t23", null, null, "LVEF ≤35% senza scompenso sintomatico: la 2023 non ha una riga (la LVEF ≤35% chiede lo scompenso sintomatico, le righe del gene valgono sopra il 35%). Solo nella Fig. 17 la LVEF <35% porta all'ICD IIa senza chiedere i sintomi (p. 3565): classe della figura, non di una riga", "ESC 2023, Rec. Table 24, p. 3566"],
+    nd_sec23:    ["23", "I", "C", "NDLVC sopravvissuta ad arresto o ripresa da un'aritmia ventricolare con instabilità emodinamica: ICD", "ESC 2023, Rec. Table 26, p. 3568"],
+    nd_iia23:    ["23", "IIa", "A", "NDLVC, sintomi di scompenso, LVEF ≤35% nonostante più di 3 mesi di terapia ottimale: ICD", "ESC 2023, Rec. Table 26, p. 3568"],
+    nd_gen23:    ["23", "IIa", "C", "Il genotipo entra nella stima del rischio di morte improvvisa", "ESC 2023, Rec. Table 26, p. 3568"],
+    nd_hrF23:    ["23", "IIa", "C", "Genotipo ad alto rischio, LVEF >35% e fattori aggiuntivi della Tab. 21: ICD", "ESC 2023, Rec. Table 26, p. 3568"],
+    nd_hr23:     ["23", "IIb", "C", "Genotipo ad alto rischio, LVEF >35%, senza fattori aggiuntivi: ICD in pazienti selezionati", "ESC 2023, Rec. Table 26, p. 3568"],
+    nd_noHrF23:  ["23", "IIb", "C", "Senza genotipo ad alto rischio, LVEF >35% con fattori aggiuntivi (sincope, LGE alla CMR): ICD", "ESC 2023, Rec. Table 26, p. 3568"],
+    nd_omt23:    ["t23", null, null, "La riga della LVEF ≤35% chiede più di 3 mesi di terapia ottimale", "ESC 2023, Rec. Table 26, p. 3568"],
+    nd_nyha1:    ["t23", null, null, "LVEF ≤35% senza sintomi di scompenso: la 2023 non ha una riga. Solo nella Fig. 17 la LVEF <35% porta all'ICD IIa senza chiedere i sintomi (p. 3565): classe della figura, non di una riga", "ESC 2023, Rec. Table 26, p. 3568"],
+    nd_testo:    ["t23", null, null, "NDLVC senza variante nota: secondo il testo l'ICD è ragionevole da considerare con TVNS, morte improvvisa in famiglia o LGE significativo", "ESC 2023, p. 3568"],
+    lvnc_22:     ["22", "IIa", "C", "Fenotipo di non compattazione alla CMR o all'eco: l'ICD in prevenzione primaria segue le regole della DCM/HNDCM", "ESC 2022, Rec. Table 31, p. 4063"],
+    lvnc_23:     ["t23", null, null, "Per la 2023 la non compattazione è un tratto (ipertrabecolatura), non una cardiomiopatia: decide il fenotipo associato, senza una riga propria", "ESC 2023, p. 3517"],
+    valv_22:     ["22", "I", "C", "Disfunzione VS che persiste dopo la correzione chirurgica: ICD in prevenzione primaria con i criteri della DCM/HNDCM", "ESC 2022, Rec. Table 37, p. 4071"],
+    valv_pes:    ["22", "I", "C", "Valvulopatia aortica con TV monomorfa sostenuta, soprattutto dopo un intervento valvolare: PES con ablazione pronta, per riconoscere e ablare un rientro branca-branca", "ESC 2022, Rec. Table 37, p. 4070"],
+    valv_tvt:    ["t22", null, null, "TV tollerata nella valvulopatia: nessuna riga propria per l'ICD", "ESC 2022, Rec. Table 37, pp. 4070–4071"],
+    // ── HCM (ESC 2022 Rec. Table 30, p. 4062; ESC 2023 Rec. Table 23, pp. 3561-3562)
+    hcm_sec22:   ["22", "I", "B", "HCM con TV non tollerata o FV: ICD", "ESC 2022, Rec. Table 30, p. 4062"],
+    hcm_sec23:   ["23", "I", "B", "HCM sopravvissuta ad arresto da TV o FV, o con TV sostenuta spontanea e compromissione emodinamica: ICD", "ESC 2023, Rec. Table 23, p. 3561"],
+    hcm_tvt22:   ["22", "IIa", "C", "HCM con TV monomorfa sostenuta tollerata: ICD", "ESC 2022, Rec. Table 30, p. 4062"],
+    hcm_alto22:  ["22", "IIa", "B", "Dai 16 anni, rischio a 5 anni ≥6%: ICD", "ESC 2022, Rec. Table 30, p. 4062"],
+    hcm_intMod22:["22", "IIa", "B", "Dai 16 anni, rischio intermedio (≥4 e <6%) con LGE ≥15%, LVEF <50%, risposta pressoria anomala, aneurisma apicale o variante sarcomerica: ICD", "ESC 2022, Rec. Table 30, p. 4062"],
+    hcm_int22:   ["22", "IIb", "B", "Dai 16 anni, rischio intermedio (≥4 e <6%): ICD", "ESC 2022, Rec. Table 30, p. 4062"],
+    hcm_basso22: ["22", "IIb", "B", "Dai 16 anni, rischio basso (<4%) con LGE ≥15%, LVEF <50% o aneurisma apicale: ICD", "ESC 2022, Rec. Table 30, p. 4062"],
+    hcm_kids22:  ["22", "IIa", "B", "Sotto i 16 anni, rischio a 5 anni ≥6% con HCM Risk-Kids: ICD", "ESC 2022, Rec. Table 30, p. 4062"],
+    hcm_alto23:  ["23", "IIa", "B", "Rischio a 5 anni ≥6%: ICD, dopo aver pesato complicanze per la vita, rischi di morte competitivi e impatto del dispositivo", "ESC 2023, Rec. Table 23, p. 3562"],
+    hcm_int23:   ["23", "IIb", "B", "Rischio a 5 anni ≥4 e <6%: ICD in singoli pazienti, con la stessa valutazione", "ESC 2023, Rec. Table 23, p. 3562"],
+    hcm_lge23:   ["23", "IIb", "B", "Rischio basso (<4%) con LGE esteso (≥15%): entra nella decisione condivisa sull'ICD", "ESC 2023, Rec. Table 23, p. 3562"],
+    hcm_fe23:    ["23", "IIb", "B", "Rischio basso (<4%) con LVEF <50%: entra nella decisione condivisa sull'ICD", "ESC 2023, Rec. Table 23, p. 3562"],
+    hcm_aneur23: ["23", "IIa", "B", "Con aneurisma apicale l'ICD si decide sul punteggio, non sull'aneurisma da solo", "ESC 2023, Rec. Table 23, p. 3562"],
+    hcm_rival23: ["23", "I", "B", "Nessuna riga per l'ICD adesso: rischio a 5 anni da rivalutare ogni 1–2 anni o quando cambia la clinica", "ESC 2023, Rec. Table 23, p. 3562"],
+    hcm_kids23:  ["23", "I", "B", "Sotto i 16 anni il rischio si stima con un modello pediatrico validato (HCM Risk-Kids), non con HCM Risk-SCD", "ESC 2023, Rec. Table 23, p. 3561"],
+    hcm_noCalc:  ["t23", null, null, "Il calcolatore non si usa negli atleti d'élite, nelle malattie metaboliche o infiltrative (Anderson-Fabry) e nelle sindromi (Noonan), e non è validato prima e dopo la miectomia: nessuna soglia della fonte vale, decide la valutazione clinica", "ESC 2023, p. 3560"],
+    hcm_asaKids: ["t23", null, null, "Sotto i 16 anni, dopo l'alcolizzazione settale, il punteggio non è validato: lo studio dopo l'alcolizzazione riguarda HCM Risk-SCD nell'adulto. Nessuna soglia della fonte vale, decide la valutazione clinica", "ESC 2023, p. 3560"],
+    hcm_asa:     ["t23", null, null, "Dopo l'alcolizzazione settale HCM Risk-SCD è validato in un solo studio nell'adulto (la 2022 lo escludeva anche lì, p. 4062): il numero si usa, con questa cautela", "ESC 2023, p. 3560"],
+    // ── ARVC (ESC 2022 Rec. Table 29, p. 4060; ESC 2023 Rec. Table 29, p. 3571, Fig. 18)
+    arvc_sec22:  ["22", "I", "C", "ARVC con TV non tollerata o FV: ICD", "ESC 2022, Rec. Table 29, p. 4060"],
+    arvc_sec23:  ["23", "I", "A", "ARVC sopravvissuta ad arresto o ripresa da un'aritmia ventricolare con instabilità emodinamica: ICD", "ESC 2023, Rec. Table 29, p. 3571"],
+    arvc_tvt22:  ["22", "IIa", "C", "ARVC con TV monomorfa sostenuta tollerata: ICD", "ESC 2022, Rec. Table 29, p. 4060"],
+    arvc_tvt23:  ["23", "IIa", "B", "ARVC con TV emodinamicamente tollerata: ICD", "ESC 2023, Rec. Table 29, p. 3571"],
+    arvc_sinc22: ["22", "IIa", "B", "ARVC definita con sincope aritmica: ICD", "ESC 2022, Rec. Table 29, p. 4060"],
+    arvc_sev22:  ["22", "IIa", "C", "ARVC definita con disfunzione sistolica severa del VD (FAC ≤17% o FE ≤35%) o del VS (FEVS ≤35%): ICD", "ESC 2022, Rec. Table 29, p. 4060; soglie p. 4059"],
+    arvc_comb22: ["22", "IIa", "C", "ARVC definita sintomatica (presincope o palpitazioni), disfunzione moderata del VD (<40%) o del VS (<45%), e TVNS o TV monomorfa sostenuta inducibile alla PES: ICD", "ESC 2022, Rec. Table 29, p. 4060; soglie p. 4059"],
+    arvc_pes22:  ["22", "IIb", "C", "Sintomi molto sospetti di aritmia ventricolare: PES per stratificare il rischio", "ESC 2022, Rec. Table 29, p. 4060"],
+    arvc_nondef: ["t22", null, null, "Le righe 2022 della prevenzione primaria valgono per l'ARVC definita", "ESC 2022, Rec. Table 29, p. 4060"],
+    arvc_dcm22:  ["t22", null, null, "Con FEVS ≤35% l'ARVC segue anche le raccomandazioni della DCM", "ESC 2022, p. 4059"],
+    arvc_hr23:   ["23", "IIa", "B", "Caratteristiche ad alto rischio per decidere l'ICD; la Fig. 18 le porta all'ICD in classe IIa", "ESC 2023, Rec. Table 29, p. 3571; Fig. 18, p. 3572"],
+    arvc_calc23: ["23", "IIa", "B", "Rischio del calcolatore ARVC 2019 aggiornato giudicato alto, nella decisione condivisa: ICD (la Fig. 18 lo mette fra le caratteristiche ad alto rischio)", "ESC 2023, Rec. Table 29, p. 3571; Fig. 18, p. 3572"],
+    arvc_calcTx: ["t23", null, null, "Soglie discusse nel testo, non nelle raccomandazioni, e tutte prima della correzione del calcolatore: 12,5% a 5 anni in un confronto, 10% in una validazione esterna del calcolatore 2019, che sotto il 50% sovrastimava il rischio; dell'aggiornato una delle due validazioni esterne riporta ancora una sovrastima, e rende meglio nei portatori di PKP2", "ESC 2023, p. 3571"],
+    arvc_atp:    ["22", "IIa", "B", "ARVC con indicazione all'ICD: un dispositivo che possa fare ATP sulla TV monomorfa fino a frequenze alte", "ESC 2022, Rec. Table 29, p. 4060"],
+    // ── restrittiva e amiloidosi (ESC 2022 Rec. Table 32, p. 4063; ESC 2023 Rec. Table 30, p. 3574)
+    rcm_sec23:   ["23", "I", "C", "Cardiomiopatia restrittiva sopravvissuta ad arresto o ripresa da un'aritmia ventricolare con instabilità emodinamica: ICD", "ESC 2023, Rec. Table 30, p. 3574"],
+    rcm_pri:     ["t22", null, null, "Nessuna riga per l'ICD primario nella cardiomiopatia restrittiva dell'adulto; nell'Anderson-Fabry la fonte non dà indicazioni. La 2023 ha solo il bambino con RCM, ischemia e sincope (IIb C, p. 3574)", "ESC 2022, p. 4063; ESC 2023, Rec. Table 30, p. 3574"],
+    amil_sec22:  ["22", "IIa", "C", "Amiloidosi AL o da transtiretina con TV non tollerata emodinamicamente: ICD", "ESC 2022, Rec. Table 32, p. 4063"],
+    amil_pri:    ["t23", null, null, "Amiloidosi: i dati non sostengono l'ICD in prevenzione primaria; la soglia per il pacemaker è bassa", "ESC 2023, p. 3581"],
+    // ── neuromuscolari (Rec. Table 33, p. 4065)
+    nm_princ:    ["22", "I", "C", "Aritmie ventricolari o disfunzione ventricolare in una malattia neuromuscolare si trattano come in chi non ce l'ha", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_ep:       ["22", "I", "C", "Distrofia miotonica con palpitazioni o sincope sospette di aritmia ventricolare, o dopo un arresto: studio elettrofisiologico invasivo", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_dm1Icd:   ["22", "I", "C", "Distrofia miotonica con TV monomorfa sostenuta o arresto abortito non dovuti a rientro branca-branca: ICD", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_bbrAbl:   ["22", "I", "C", "TV da rientro branca-branca sintomatica: ablazione transcatetere", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_bbrDev:   ["22", "I", "C", "Distrofia miotonica che va all'ablazione del rientro branca-branca: pacemaker o ICD", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_sinc:     ["22", "IIa", "C", "Distrofia miotonica senza ritardo della conduzione AV, con sincope molto sospetta di aritmia ventricolare: ICD", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_palp:     ["22", "IIa", "C", "Distrofia miotonica con palpitazioni molto sospette e TV non da rientro branca-branca indotta allo studio: ICD", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_sincPes:  ["f22", "IIa", null, "Distrofia miotonica con sincope molto sospetta e TV non da rientro branca-branca indotta allo studio: ICD (classe IIa nella Fig. 23; la riga della sincope chiede l'assenza di ritardo AV)", "ESC 2022, Fig. 23, p. 4064"],
+    nm_fatt:     ["22", "IIb", "C", "Distrofia miotonica con altri fattori di rischio aritmico: ICD al posto del pacemaker", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_ecgEp:    ["22", "IIa", "B", "Distrofia miotonica con PR ≥240 ms o QRS ≥120 ms, oltre i 40 anni con aritmie sopraventricolari o LGE, o con PR o QRS allungati all'improvviso: studio elettrofisiologico", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_lgmd:     ["22", "IIa", "C", "Distrofia dei cingoli 1B o di Emery-Dreifuss con indicazione al pacing: ICD", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_lgmdTx:   ["t22", null, null, "Nel testo l'ICD si considera anche con LGE significativo alla CMR, senza classe", "ESC 2022, p. 4065"],
+    nm_dmd:      ["22", "IIb", "C", "Duchenne o Becker con LGE significativo alla CMR: ICD (al posto del pacemaker), pesando la prognosi della malattia", "ESC 2022, Rec. Table 33, p. 4065"],
+    nm_altra:    ["t22", null, null, "Nessuna riga propria: vale la cardiopatia che il paziente ha (per esempio le regole della DCM con la disfunzione VS)", "ESC 2022, Rec. Table 33, p. 4065"],
+    // ── sarcoidosi (Rec. Table 35, pp. 4067-4068)
+    sarc_sec:    ["22", "I", "B", "Sarcoidosi cardiaca con TV sostenuta documentata o arresto abortito: ICD", "ESC 2022, Rec. Table 35, p. 4068"],
+    sarc_fe:     ["22", "I", "B", "Sarcoidosi cardiaca con FEVS ≤35%: ICD", "ESC 2022, Rec. Table 35, p. 4067"],
+    sarc_pace:   ["22", "IIa", "C", "Sarcoidosi cardiaca con indicazione al pacing permanente per BAV di alto grado: ICD, qualunque sia la FEVS", "ESC 2022, Rec. Table 35, p. 4067"],
+    sarc_lge:    ["22", "IIa", "B", "Sarcoidosi cardiaca con FEVS >35% e LGE significativo alla CMR, a infiammazione acuta risolta: ICD", "ESC 2022, Rec. Table 35, p. 4067"],
+    sarc_pesEs:  ["22", "IIa", "C", "FEVS 35–50% e LGE minore, a infiammazione acuta risolta: PES per stratificare il rischio", "ESC 2022, Rec. Table 35, p. 4067"],
+    sarc_pes:    ["22", "IIa", "C", "FEVS 35–50% e TV monomorfa sostenuta inducibile alla PES: ICD", "ESC 2022, Rec. Table 35, p. 4067"],
+    sarc_attesa: ["t22", null, null, "La riga del LGE e quella della PES valgono dopo la risoluzione dell'infiammazione acuta: si rivaluta allora", "ESC 2022, Rec. Table 35, p. 4067"],
+    // ── miocardite (Rec. Table 34, pp. 4066-4067)
+    mioc_acuta:  ["22", "IIa", "C", "TV sostenuta o FV non tollerate nella fase acuta della miocardite: ICD prima della dimissione", "ESC 2022, Rec. Table 34, p. 4066"],
+    mioc_cron:   ["22", "I", "C", "TV monomorfa sostenuta non tollerata nella fase cronica: ICD", "ESC 2022, Rec. Table 34, p. 4066"],
+    mioc_tvt:    ["22", "IIa", "C", "TV monomorfa sostenuta tollerata nella fase cronica: ICD", "ESC 2022, Rec. Table 34, p. 4066"],
+    mioc_abl:    ["22", "IIb", "C", "TV monomorfa ben tollerata nella fase cronica, funzione VS conservata e cicatrice limitata: ablazione al posto dell'ICD, dopo averne parlato col paziente e se si raggiungono gli obiettivi", "ESC 2022, Rec. Table 34, p. 4067"],
+    mioc_aad:    ["22", "IIa", "C", "Aritmie ventricolari sintomatiche nella fase acuta: antiaritmici, di preferenza amiodarone e betabloccanti", "ESC 2022, Rec. Table 34, p. 4066"],
+    mioc_pri:    ["t22", null, null, "La 2022 non ha righe per l'ICD in prevenzione primaria dopo una miocardite, né per il WCD nella fase acuta (dati scarsi)", "ESC 2022, Rec. Table 34, p. 4066; p. 4040"],
+    // ── Chagas (Rec. Table 36, p. 4070)
+    chagas_icd:  ["22", "IIb", "C", "Chagas con TV sintomatica nonostante gli antiaritmici (amiodarone e betabloccanti) inefficaci o non tollerati: ICD", "ESC 2022, Rec. Table 36, p. 4070"],
+    chagas_amio: ["22", "IIa", "C", "Chagas con extrasistoli o TV sintomatiche: amiodarone, per ridurre il carico aritmico", "ESC 2022, Rec. Table 36, p. 4070"],
+    chagas_abl:  ["22", "IIa", "C", "TV monomorfa ricorrente o shock per TV monomorfa, con antiaritmici inefficaci, controindicati o non tollerati: ablazione in un centro specializzato", "ESC 2022, Rec. Table 36, p. 4070"],
+    chagas_dub:  ["t22", null, null, "Nel Chagas il beneficio dell'ICD in prevenzione secondaria è dubbio: in una metanalisi osservazionale mortalità annua 9,7% con l'ICD e 9,6% con l'amiodarone", "ESC 2022, p. 4069"],
+    chagas_pri:  ["t22", null, null, "Nessuna riga per l'ICD in prevenzione primaria: punteggio di Rassi e fibrosi alla CMR stimano il rischio, ma il beneficio dell'ICD non è dimostrato", "ESC 2022, p. 4068"],
+    // ── congenite (Rec. Table 38-39, pp. 4072-4073; Fig. 26, p. 4071)
+    chd_sec:     ["22", "I", "C", "Cardiopatia congenita con TV non tollerata o arresto da FV, escluse le cause reversibili: ICD", "ESC 2022, Rec. Table 39, p. 4072"],
+    chd_les:     ["22", "I", "B", "Aritmia ventricolare sostenuta: cercare lesioni residue o anomalie strutturali nuove (imaging, soprattutto CMR, ed emodinamica)", "ESC 2022, Rec. Table 39, p. 4072"],
+    chd_ablFig:  ["f22", "I", null, "Cardiopatia semplice o moderata, funzione biventricolare conservata, TV tollerata: ablazione per prima; se non riesce, ICD (classe I in entrambi i casi nella sola Fig. 26)", "ESC 2022, Fig. 26, p. 4071"],
+    chd_noIcd:   ["22", "IIb", "C", "Fallot riparato con funzione biventricolare conservata e TV monomorfa sintomatica: ablazione al posto dell'ICD, in un centro specializzato (Fig. 26: dopo un'ablazione riuscita si può non impiantare)", "ESC 2022, Rec. Table 39, p. 4073"],
+    chd_icdFig:  ["f22", "I", null, "TV tollerata con cardiopatia complessa o funzione ridotta, o ablazione non riuscita: ICD (classe I nella sola Fig. 26; in tabella la classe I è per la TV non tollerata o l'arresto)", "ESC 2022, Fig. 26, p. 4071"],
+    chd_tofAbl:  ["22", "I", "C", "Fallot riparato con TV monomorfa sostenuta: ablazione in un centro specializzato", "ESC 2022, Rec. Table 39, p. 4073"],
+    chd_biv:     ["22", "I", "C", "Adulto con fisiologia biventricolare e VS sistemico, NYHA II–III e FE ≤35% nonostante almeno 3 mesi di terapia ottimale: ICD", "ESC 2022, Rec. Table 38, p. 4072"],
+    chd_sinc:    ["22", "IIa", "C", "Sincope presumibilmente aritmica con disfunzione ventricolare almeno moderata o TV monomorfa sostenuta inducibile alla PES: ICD", "ESC 2022, Rec. Table 38, p. 4072"],
+    chd_sincPes: ["t22", null, null, "Senza disfunzione almeno moderata, la PES decide se la sincope porta all'ICD (riga IIa C)", "ESC 2022, Rec. Table 38, p. 4072; p. 4071"],
+    chd_univ:    ["22", "IIb", "C", "Ventricolo unico o VD sistemico con disfunzione avanzata e fattori di rischio aggiuntivi: ICD", "ESC 2022, Rec. Table 38, p. 4072"],
+    chd_tofIcd:  ["22", "IIa", "C", "Fallot riparato con PES positiva, e sintomi aritmici o una combinazione di altri fattori di rischio: ICD", "ESC 2022, Rec. Table 38, p. 4072"],
+    chd_tofPes:  ["22", "IIa", "C", "Fallot riparato con sintomi aritmici e TVNS: studio elettrofisiologico con PES", "ESC 2022, Rec. Table 38, p. 4072"],
+    chd_tofPes2: ["22", "IIb", "C", "Fallot riparato senza sintomi aritmici ma con una combinazione di fattori di rischio: studio elettrofisiologico con PES", "ESC 2022, Rec. Table 38, p. 4072"],
+    chd_omt:     ["t22", null, null, "La riga della FE ≤35% chiede almeno 3 mesi di terapia ottimale: si rivaluta dopo", "ESC 2022, Rec. Table 38, p. 4072"],
+    // ── malattie elettriche primarie (Rec. Table 40-46, pp. 4073-4087)
+    fvi_icd:     ["22", "I", "B", "FV idiopatica: ICD", "ESC 2022, Rec. Table 40, p. 4073"],
+    fvi_diag:    ["22", "I", "B", "La FV idiopatica si diagnostica in un sopravvissuto ad arresto, meglio con la FV documentata, dopo aver escluso cause strutturali, canalopatie, cause metaboliche e tossiche", "ESC 2022, Rec. Table 40, p. 4073"],
+    lqts_arr:    ["22", "I", "B", "QT lungo con arresto cardiaco: ICD in aggiunta al betabloccante", "ESC 2022, Rec. Table 41, p. 4077"],
+    lqts_sint:   ["22", "I", "C", "QT lungo sintomatico (sincope aritmica o aritmia ventricolare non tollerata) nonostante betabloccante e terapie del genotipo: ICD", "ESC 2022, Rec. Table 41, p. 4077"],
+    lqts_nt:     ["22", "IIa", "C", "QT lungo sintomatico con betabloccante e terapie del genotipo non tollerati o controindicati alla dose terapeutica: ICD oppure denervazione simpatica cardiaca sinistra (LCSD)", "ESC 2022, Rec. Table 41, p. 4078"],
+    lqts_bb:     ["22", "I", "B", "QT lungo con QT allungato documentato: betabloccante, meglio non selettivo (nadololo o propranololo); mexiletina nell'LQT3 (I C). L'ICD entra se i sintomi tornano in terapia", "ESC 2022, Rec. Table 41, p. 4077"],
+    lqts_123:    ["22", "IIb", "B", "QT lungo asintomatico ad alto rischio secondo il calcolatore 1-2-3 LQTS: ICD, oltre alle terapie del genotipo", "ESC 2022, Rec. Table 41, p. 4078"],
+    lqts_calc:   ["22", "IIa", "C", "Prima di iniziare la terapia, stimare il rischio aritmico da genotipo e QTc (calcolatore 1-2-3 LQTS)", "ESC 2022, Rec. Table 41, p. 4078"],
+    lqts_tvt:    ["t22", null, null, "Una TV sostenuta tollerata non rientra in «sintomatico» come lo definisce la tabella (sincope aritmica o aritmia non tollerata): nessuna riga", "ESC 2022, Rec. Table 41, p. 4078"],
+    lqts_lcsd:   ["22", "I", "C", "QT lungo sintomatico con ICD controindicato o rifiutato: denervazione simpatica cardiaca sinistra (LCSD)", "ESC 2022, Rec. Table 41, p. 4078"],
+    ats_icd:     ["22", "I", "C", "Andersen-Tawil dopo arresto abortito o TV sostenuta non tollerata: ICD", "ESC 2022, Rec. Table 42, p. 4079"],
+    ats_iib:     ["22", "IIb", "C", "Andersen-Tawil con sincope inspiegata nella storia o TV sostenuta tollerata: ICD", "ESC 2022, Rec. Table 42, p. 4079"],
+    ats_ilr:     ["22", "IIa", "C", "Andersen-Tawil con sincope inspiegata: loop recorder impiantabile", "ESC 2022, Rec. Table 42, p. 4079"],
+    brs_icd:     ["22", "I", "C", "Brugada sopravvissuto ad arresto o con TV sostenuta spontanea documentata: ICD", "ESC 2022, Rec. Table 43, p. 4081"],
+    brs_sinc:    ["22", "IIa", "C", "ECG di tipo 1 e sincope aritmica: ICD", "ESC 2022, Rec. Table 43, p. 4081"],
+    brs_ilr:     ["22", "IIa", "C", "Brugada con sincope inspiegata: loop recorder impiantabile", "ESC 2022, Rec. Table 43, p. 4081"],
+    brs_pes:     ["22", "IIb", "B", "Asintomatico con tipo 1 spontaneo: PES", "ESC 2022, Rec. Table 43, p. 4081"],
+    brs_pesIcd:  ["22", "IIb", "C", "Asintomatico selezionato con FV inducibile alla PES con non più di 2 extrastimoli: ICD", "ESC 2022, Rec. Table 43, p. 4081"],
+    brs_noAbl:   ["22", "III", "C", "Niente ablazione nel Brugada asintomatico", "ESC 2022, Rec. Table 43, p. 4081"],
+    brs_ind:     ["t22", null, null, "Tipo 1 solo indotto, senza sintomi: nessuna riga per l'ICD, follow-up", "ESC 2022, Fig. 33, p. 4082"],
+    brs_chin:    ["22", "IIa", "C", "Brugada con indicazione all'ICD ma controindicazione, rifiuto o shock ripetuti: chinidina", "ESC 2022, Rec. Table 43, p. 4081"],
+    ers_icd:     ["22", "I", "B", "Sindrome da ripolarizzazione precoce dopo un arresto: ICD", "ESC 2022, Rec. Table 44, p. 4083"],
+    ers_sinc:    ["22", "IIb", "C", "Pattern di ripolarizzazione precoce con sincope aritmica ed elementi di rischio aggiuntivi: ICD o chinidina", "ESC 2022, Rec. Table 44, p. 4083"],
+    ers_ilr:     ["22", "IIa", "C", "Pattern con almeno un elemento di rischio, o con sincope aritmica: loop recorder impiantabile", "ESC 2022, Rec. Table 44, p. 4083"],
+    ers_asint:   ["22", "IIb", "C", "Asintomatico con pattern ad alto rischio e morte improvvisa giovanile inspiegata in famiglia: ICD o chinidina", "ESC 2022, Rec. Table 44, p. 4084"],
+    ers_iso:     ["22", "III", "C", "Asintomatico con pattern isolato: niente ICD", "ESC 2022, Rec. Table 44, p. 4084"],
+    ers_seg:     ["t22", null, null, "Pattern ad alto rischio all'ECG senza storia familiare né sintomi: nessuna riga per l'ICD", "ESC 2022, Rec. Table 44, p. 4084"],
+    ers_chin:    ["22", "IIa", "B", "FV ricorrente nella sindrome: chinidina in aggiunta all'ICD", "ESC 2022, Rec. Table 44, p. 4083"],
+    cpvt_arr:    ["22", "I", "C", "CPVT dopo arresto abortito: ICD insieme a betabloccante e flecainide", "ESC 2022, Rec. Table 45, p. 4086"],
+    cpvt_icd:    ["22", "IIa", "C", "CPVT con sincope aritmica e/o TV bidirezionale o polimorfa documentata nonostante betabloccante alla dose massima tollerata e flecainide: ICD", "ESC 2022, Rec. Table 45, p. 4086"],
+    cpvt_bb:     ["22", "I", "C", "CPVT con diagnosi clinica: betabloccante, meglio non selettivo (nadololo o propranololo)", "ESC 2022, Rec. Table 45, p. 4086"],
+    cpvt_flec:   ["22", "IIa", "C", "Sincope ricorrente, TV polimorfa o bidirezionale, o extrasistoli da sforzo persistenti nonostante il betabloccante alla dose massima tollerata: flecainide", "ESC 2022, Rec. Table 45, p. 4086"],
+    cpvt_lcsd:   ["22", "IIa", "C", "CPVT in cui betabloccante e flecainide non funzionano, non sono tollerati o sono controindicati: denervazione simpatica cardiaca sinistra", "ESC 2022, Rec. Table 45, p. 4086"],
+    cpvt_pes:    ["22", "III", "C", "Niente PES per stratificare il rischio", "ESC 2022, Rec. Table 45, p. 4086"],
+    sqts_icd:    ["22", "I", "C", "QT corto sopravvissuto ad arresto e/o con TV sostenuta spontanea documentata: ICD", "ESC 2022, Rec. Table 46, p. 4087"],
+    sqts_sinc:   ["22", "IIa", "C", "QT corto con sincope aritmica: ICD", "ESC 2022, Rec. Table 46, p. 4087"],
+    sqts_pri:    ["t22", null, null, "Asintomatico: nessuna riga per l'ICD; chinidina considerabile con morte improvvisa in famiglia (IIb C), loop recorder nei giovani (IIa C)", "ESC 2022, Rec. Table 46, p. 4087"],
+    sqts_chin:   ["22", "IIb", "C", "QT corto con indicazione all'ICD ma controindicazione o rifiuto: chinidina", "ESC 2022, Rec. Table 46, p. 4087"]
+  };
+
+  // Dove la ESC 2023 prevale: le cardiomiopatie (decisione del medico, 03/10/2026).
+  var CMP = { dcm:1, ndlvc:1, lvnc:1, hcm:1, arvc:1, rcm:1, amil:1 };
+  // Genotipi ad alto rischio: ESC 2023, Tab. 21, p. 3566 (EMD e DES nel testo, pp. 3564 e 3568).
+  var ALTO = { lmna:1, flnc:1, tmem43:1, pln:1, dsp:1, rbm20:1, emd:1 };
+  // Geni fra i fattori della riga IIa C della 2022: ESC 2022, Rec. Table 28, p. 4057.
+  // LMNA no: nella riga la nota d la manda alle sue raccomandazioni, e la Fig. 19 (nota a, p. 4055) la tiene fuori dai fattori.
+  var GENI22 = { pln:1, flnc:1, rbm20:1 };
+  // ICD rifiutato o controindicato: alternative proprie della malattia.
+  var ALTERNATIVE = { brs:["brs_chin"], sqts:["sqts_chin"], lqts:["lqts_lcsd"] };
+  var RANGO = { "I":4, "IIa":3, "IIb":2, "III":1 }, LIV = { "A":3, "B":2, "C":1 };
+  var NOME = { cad:"coronaropatia cronica", vaso:"vasospasmo coronarico", dcm:"cardiomiopatia dilatativa",
+    ndlvc:"NDLVC (HNDCM nella 2022)", lvnc:"non compattazione · ipertrabecolatura", hcm:"cardiomiopatia ipertrofica",
+    arvc:"cardiomiopatia aritmogena del VD", rcm:"cardiomiopatia restrittiva", amil:"amiloidosi cardiaca",
+    nm:"malattie neuromuscolari", sarc:"sarcoidosi cardiaca", mioc:"miocardite", chagas:"cardiomiopatia di Chagas",
+    valv:"valvulopatia", chd:"cardiopatia congenita", fvi:"FV idiopatica", lqts:"QT lungo congenito",
+    ats:"sindrome di Andersen-Tawil", brs:"sindrome di Brugada", ers:"ripolarizzazione precoce", cpvt:"CPVT", sqts:"QT corto" };
+
+  /* ═══ FUNZIONI PURE ═══════════════════════════════════════════════════ */
+  function fmt(v) { return String(Math.round(v * 100) / 100).replace(".", ","); }
+  function inn(v, l) { return l.indexOf(v) >= 0; }
+  function rg(id, k) {
+    var d = RIGHE[id];
+    return { id:id, a:d[0], c:d[1], l:d[2], t:d[3], pg:d[4], k:k || (d[1] === "III" ? "contro" : (d[1] ? "icd" : "info")) };
+  }
+  function add(o, id, k) {
+    var i;
+    for (i = 0; i < o.righe.length; i++) if (o.righe[i].id === id) return;
+    o.righe.push(rg(id, k));
+  }
+  function campo(o, v, a, b, nome) {
+    if (v === null || v === undefined) { o.manca.push(nome); return null; }
+    if (!(v >= a && v <= b)) { o.manca.push(nome + " (fuori scala: " + fmt(v) + ")"); return null; }
+    return v;
+  }
+  function sec(s) { return s.ev === "arresto" || s.ev === "tvnt"; }
+  function pri(s) { return s.ev === "no" || s.ev === "sinc"; }
+  function conEvento(s) { return s.ev === "arresto" || s.ev === "tvnt" || s.ev === "tvt"; }
+
+  function fCad(s, o) {
+    var fe, omt, gg = null, servePes;
+    if (sec(s)) { add(o, "cad_sec"); add(o, "cad_ablPre", "alt"); return; }
+    fe = campo(o, s.fe, 5, 85, "la FEVS");
+    if (s.ev === "tvt") {
+      if (fe === null) return;
+      if (fe >= SOGLIE.CAD_FE_TVMS) { add(o, "cad_tvtIcd"); add(o, "cad_tvtAbl", "alt"); }
+      else { add(o, "cad_tvtFig"); add(o, "cad_ablPre", "alt"); }
+      if (fe <= SOGLIE.CAD_FE_I) o.rim.push("icdcrt");
+      return;
+    }
+    omt = campo(o, s.omt, 0, 240, "i mesi di terapia ottimale");
+    if (!s.ima) o.manca.push("se c'è stato un infarto nelle ultime 6 settimane");
+    if (s.ima === "si") gg = campo(o, s.imaGg, 0, 365, "i giorni dall'infarto");
+    if (fe !== null && fe <= SOGLIE.CAD_FE_I && !s.nyha) o.manca.push("la classe NYHA");
+    servePes = s.ev === "sinc" || (fe !== null && fe <= SOGLIE.CAD_FE_TVNS && s.tvns);
+    if (servePes && !s.pes) o.manca.push("l'esito della PES (anche «non fatta»)");
+    if (o.manca.length) return;
+    if (fe <= SOGLIE.CAD_FE_I) o.rim.push("icdcrt");
+    // i cancelli dopo l'infarto: 40 giorni e 6 settimane, ESC 2022 p. 4046
+    if (s.ima === "si" && gg < SOGLIE.IMA_GIORNI) {
+      add(o, "cad_40", "prima"); if (fe <= SOGLIE.CAD_FE_TVNS) add(o, "cad_rival", "prima"); o.wcdIma = true; return;
+    }
+    if (s.ima === "si" && gg < SOGLIE.IMA_SETT_GG) {
+      add(o, "cad_6s", "prima"); if (fe <= SOGLIE.CAD_FE_TVNS) add(o, "cad_rival", "prima"); return;
+    }
+    if (fe <= SOGLIE.CAD_FE_TVNS && omt < SOGLIE.OMT_MESI) add(o, "cad_omt", "prima");
+    else {
+      if (fe <= SOGLIE.CAD_FE_I && (s.nyha === "2" || s.nyha === "3")) add(o, "cad_ia");
+      if (fe <= SOGLIE.CAD_FE_I && s.nyha === "4") add(o, "cad_nyha4", "info");
+      if (fe <= SOGLIE.CAD_FE_NYHA1 && s.nyha === "1") add(o, "cad_nyha1");
+      if (fe <= SOGLIE.CAD_FE_TVNS && s.tvns) {
+        if (s.pes === "pos") add(o, "cad_tvns");
+        else if (s.pes === "nf") add(o, "cad_pesTvns", "esame");
+      }
+      if (s.ev === "sinc" && s.pes === "pos" && !s.tvns && fe <= SOGLIE.CAD_FE_TVNS) add(o, "cad_sincFig");
+    }
+    if (s.ev === "sinc") {
+      if (s.pes === "nf") add(o, "cad_pesSinc", "esame");
+      if (s.pes === "neg") add(o, "cad_ilr", "info");
+      if (s.pes === "pos" && fe > SOGLIE.CAD_FE_TVNS) add(o, "cad_preserve", "info");
+    }
+  }
+
+  function fVaso(s, o) { if (s.ev === "arresto") add(o, "vaso_icd"); else add(o, "vaso_altro", "info"); }
+
+  // ESC 2023, Tab. 21, p. 3566: i predittori del genotipo ad alto rischio. true, false, null se manca un dato.
+  function fattoriT21(s, o, fe) {
+    var g = s.gene, lge = !!s.lge;
+    if (g === "flnc" || g === "dsp" || g === "rbm20") return lge || fe < SOGLIE.T21_FE;
+    if (g === "tmem43") {
+      if (!s.sesso) { o.manca.push("il sesso (TMEM43)"); return null; }
+      return s.sesso === "m" || fe < SOGLIE.T21_FE || !!s.tvns || lge || !!s.ve200;
+    }
+    if (g === "pln" && (fe < SOGLIE.T21_FE || lge || s.tvns)) return true;
+    if (!s.giudG) { o.manca.push("se il rischio del gene conta come fattore aggiuntivo"); return null; }
+    return s.giudG === "si";
+  }
+
+  function fDcm(s, o, tipo) {
+    var nd = tipo === "ndlvc", con23 = tipo !== "valv", gene = con23 ? s.gene : "", fe, rL = null, f22 = 0, ft;
+    if (tipo === "lvnc") { add(o, "lvnc_22", "info"); add(o, "lvnc_23", "info"); }
+    if (tipo === "valv") add(o, "valv_22", "info");
+    if (sec(s)) {
+      if (tipo === "valv") { add(o, "g_sec"); if (s.ev === "tvnt") add(o, "valv_pes", "esame"); return; }
+      add(o, "dcm_sec22"); add(o, nd ? "nd_sec23" : "dcm_sec23"); return;
+    }
+    if (s.ev === "tvt") {
+      if (tipo === "valv") { add(o, "valv_tvt", "info"); add(o, "valv_pes", "esame"); return; }
+      add(o, "dcm_tvt22"); add(o, "c_tvt"); return;
+    }
+    fe = campo(o, s.fe, 5, 85, "la FEVS");
+    if (con23 && !gene) o.manca.push("il genotipo (anche «nessuna variante»)");
+    if (fe !== null && fe <= SOGLIE.DCM_FE) {
+      if (!s.nyha) o.manca.push("la classe NYHA");
+      campo(o, s.omt, 0, 240, "i mesi di terapia ottimale");
+    }
+    if (gene === "lmna") rL = campo(o, s.rLmna, 0, 100, "il rischio LMNA a 5 anni (Tool LMNA)");
+    if (!s.pes) o.manca.push("l'esito dello studio elettrofisiologico (anche «non fatto»)");
+    if (o.manca.length) return;
+    if (fe <= SOGLIE.DCM_FE) o.rim.push("icdcrt");
+    if (gene === "lmna") o.rim.push("lmna");
+    // ESC 2022, Rec. Table 28, p. 4057
+    if (fe <= SOGLIE.DCM_FE && (s.nyha === "2" || s.nyha === "3")) {
+      if (s.omt >= SOGLIE.OMT_MESI) add(o, "dcm_iia22"); else add(o, "dcm_omt22", "prima");
+    }
+    if (gene === "lmna" && rL >= SOGLIE.LMNA_2022 && (s.tvns || fe < SOGLIE.DCM_FE_FATT || s.avDelay)) add(o, "dcm_lmna22");
+    if (s.ev === "sinc") f22++;
+    if (s.lge) f22++;
+    if (s.pes === "pos") f22++;
+    if (GENI22[gene]) f22++;
+    if (fe < SOGLIE.DCM_FE_FATT && f22 >= 2) add(o, "dcm_2f22");
+    if (s.ev === "sinc" && s.pes === "nf") add(o, "dcm_ef22", "esame");
+    if (!con23) return;
+    // ESC 2023, Rec. Table 24 (DCM, p. 3566) e 26 (NDLVC, p. 3568)
+    if (fe <= SOGLIE.DCM_FE) {
+      if (s.nyha !== "1") {
+        if (s.omt > SOGLIE.OMT_MESI) add(o, nd ? "nd_iia23" : "dcm_iia23"); else add(o, nd ? "nd_omt23" : "dcm_omt23", "prima");
+      } else add(o, nd ? "nd_nyha1" : "dcm_nyha1", "info");
+    } else if (ALTO[gene]) {
+      add(o, nd ? "nd_gen23" : "dcm_gen23", "info");
+      ft = fattoriT21(s, o, fe);
+      if (ft === null) return;
+      add(o, ft ? (nd ? "nd_hrF23" : "dcm_hrF23") : (nd ? "nd_hr23" : "dcm_hr23"));
+    } else if (s.ev === "sinc" || s.lge) add(o, nd ? "nd_noHrF23" : "dcm_noHrF23");
+    else { add(o, "c_strat", "info"); if (nd) add(o, "nd_testo", "info"); }
+  }
+
+  function fHcm(s, o) {
+    var r, fe, fe50, n23 = 0;
+    if (sec(s)) { add(o, "hcm_sec22"); add(o, "hcm_sec23"); return; }
+    if (s.ev === "tvt") { add(o, "hcm_tvt22"); add(o, "c_tvt"); return; }
+    if (!s.eta16) o.manca.push("l'età (16 anni o più, o meno)");
+    if (s.noCalc) { if (!o.manca.length) add(o, "hcm_noCalc", "info"); return; }
+    // sotto i 16 anni dopo l'alcolizzazione: validato solo HCM Risk-SCD nell'adulto (ESC 2023 p. 3560), come nel Tool HCM SCD
+    if (s.asa && s.eta16 === "no") { if (!o.manca.length) add(o, "hcm_asaKids", "info"); return; }
+    r = campo(o, s.rHcm, 0, 100, s.eta16 === "no" ? "il rischio a 5 anni di HCM Risk-Kids" : "il rischio a 5 anni di HCM Risk-SCD");
+    fe = campo(o, s.fe, 5, 85, "la FEVS");
+    if (o.manca.length) return;
+    fe50 = fe < SOGLIE.HCM_FE;
+    if (s.asa) add(o, "hcm_asa", "info");
+    if (s.eta16 === "si") {
+      o.rim.push("hcmscd");
+      // ESC 2022, Rec. Table 30, p. 4062
+      if (r >= SOGLIE.HCM_ALTO) add(o, "hcm_alto22");
+      else if (r >= SOGLIE.HCM_INT) add(o, (s.lge15 || fe50 || s.bp || s.aneur || s.sarcomut) ? "hcm_intMod22" : "hcm_int22");
+      else if (s.lge15 || fe50 || s.aneur) add(o, "hcm_basso22");
+    } else {
+      o.rim.push("hcmscd");
+      add(o, "hcm_kids23", "info");
+      if (r >= SOGLIE.HCM_ALTO) add(o, "hcm_kids22");
+    }
+    // ESC 2023, Rec. Table 23, p. 3562
+    if (r >= SOGLIE.HCM_ALTO) { add(o, "hcm_alto23"); n23++; }
+    else if (r >= SOGLIE.HCM_INT) { add(o, "hcm_int23"); n23++; }
+    else {
+      if (s.lge15) { add(o, "hcm_lge23"); n23++; }
+      if (fe50) { add(o, "hcm_fe23"); n23++; }
+    }
+    if (s.aneur) add(o, "hcm_aneur23", "info");
+    if (!n23) add(o, "hcm_rival23", "info");
+  }
+
+  function fArvc(s, o) {
+    var fe, rv, fac = null, rA = null, hr = [], x;
+    o.rim.push("arvc");
+    if (sec(s)) { add(o, "arvc_sec22"); add(o, "arvc_sec23"); return; }
+    if (s.ev === "tvt") { add(o, "arvc_tvt22"); add(o, "arvc_tvt23"); return; }
+    fe = campo(o, s.fe, 5, 85, "la FEVS");
+    rv = campo(o, s.rvef, 5, 85, "la FE del VD");
+    if (s.fac !== null && s.fac !== undefined) fac = campo(o, s.fac, 1, 80, "la FAC del VD");
+    if (!s.pes) o.manca.push("l'esito della PES (anche «non fatta»)");
+    if (s.rArvc !== null && s.rArvc !== undefined) {
+      rA = campo(o, s.rArvc, 0, 100, "il rischio ARVC a 5 anni");
+      if (!s.giudA) o.manca.push("se il rischio del calcolatore è giudicato alto");
+    }
+    if (o.manca.length) return;
+    // ESC 2022, Rec. Table 29, p. 4060; soglie p. 4059
+    if (!s.arvcDef) add(o, "arvc_nondef", "info");
+    else {
+      if (s.ev === "sinc") add(o, "arvc_sinc22");
+      if ((fac !== null && fac <= SOGLIE.ARVC22_FAC) || rv <= SOGLIE.ARVC22_RV_SEV || fe <= SOGLIE.ARVC22_LV_SEV) add(o, "arvc_sev22");
+      if (s.sint && (rv < SOGLIE.ARVC22_RV_MOD || fe < SOGLIE.ARVC22_LV_MOD) && (s.tvns || s.pes === "pos")) add(o, "arvc_comb22");
+      if (s.sint && s.pes === "nf") add(o, "arvc_pes22", "esame");
+    }
+    if (fe <= SOGLIE.ARVC22_LV_SEV) add(o, "arvc_dcm22", "info");
+    // ESC 2023, Rec. Table 29 nota c, p. 3571; Fig. 18, p. 3572
+    if (s.ev === "sinc") hr.push("sincope aritmica");
+    if (s.tvns) hr.push("TVNS");
+    if (rv < SOGLIE.ARVC23_RV) hr.push("FE del VD " + fmt(rv) + "% (sotto il 40%)");
+    if (fe < SOGLIE.ARVC23_LV) hr.push("FEVS " + fmt(fe) + "% (sotto il 45%)");
+    if (s.pes === "pos") hr.push("TV monomorfa sostenuta alla PES");
+    if (hr.length) { x = rg("arvc_hr23"); x.t += ": qui " + hr.join(", "); o.righe.push(x); }
+    if (rA !== null) { if (s.giudA === "si") add(o, "arvc_calc23"); add(o, "arvc_calcTx", "info"); }
+    if (!hr.length && !(rA !== null && s.giudA === "si")) add(o, "c_strat", "info");
+  }
+
+  function fRcm(s, o) {
+    if (sec(s)) { add(o, "g_sec"); add(o, "rcm_sec23"); return; }
+    if (s.ev === "tvt") { add(o, "c_tvt"); return; }
+    add(o, "rcm_pri", "info");
+  }
+  function fAmil(s, o) {
+    if (sec(s)) {
+      if (!s.fenoR) { o.manca.push("se il fenotipo è restrittivo"); return; }
+      add(o, "amil_sec22"); if (s.fenoR === "si") add(o, "rcm_sec23"); return;
+    }
+    if (s.ev === "tvt") { add(o, "c_tvt"); return; }
+    add(o, "amil_pri", "info");
+  }
+
+  function fNm(s, o) {
+    var t = s.nmTipo;
+    add(o, "nm_princ", "info");
+    if (!t) { o.manca.push("quale malattia neuromuscolare"); return; }
+    if (t === "dm1") {
+      if (conEvento(s)) {
+        if (!s.bbr) { o.manca.push("se la TV è da rientro branca-branca"); return; }
+        if (s.bbr === "si") { add(o, "nm_bbrAbl", "prima"); add(o, "nm_bbrDev"); }
+        else if (s.bbr === "no") add(o, "nm_dm1Icd");
+        else add(o, "nm_ep", "esame");
+        return;
+      }
+      if (s.ev === "sinc" && !s.nmAv) o.manca.push("se c'è un ritardo della conduzione AV");
+      if ((s.palp || s.ev === "sinc") && !s.pes) o.manca.push("l'esito dello studio elettrofisiologico (anche «non fatto»)");
+      if (o.manca.length) return;
+      if (s.ev === "sinc") { if (s.nmAv === "no") add(o, "nm_sinc"); if (s.pes === "pos") add(o, "nm_sincPes"); if (s.pes === "nf") add(o, "nm_ep", "esame"); }
+      if (s.palp) { if (s.pes === "pos") add(o, "nm_palp"); else if (s.pes === "nf") add(o, "nm_ep", "esame"); }
+      if (s.nmPace && s.nmFatt) add(o, "nm_fatt");
+      if (s.nmEcg) add(o, "nm_ecgEp", "esame");
+      return;
+    }
+    if (sec(s)) { add(o, "g_sec"); return; }
+    if (s.ev === "tvt") { add(o, "nm_altra", "info"); return; }
+    if (t === "lgmd") { if (s.nmPace) add(o, "nm_lgmd"); add(o, "nm_lgmdTx", "info"); return; }
+    if (t === "dmd") { if (s.lge) add(o, "nm_dmd"); return; }
+    add(o, "nm_altra", "info");
+  }
+
+  function fSarc(s, o) {
+    var fe, mid;
+    o.rim.push("disp");
+    if (conEvento(s)) { add(o, "sarc_sec"); return; }
+    fe = campo(o, s.fe, 5, 85, "la FEVS");
+    if (o.manca.length) return;
+    mid = fe > SOGLIE.SARC_FE && fe <= SOGLIE.SARC_FE_PES;
+    if (((s.lge && fe > SOGLIE.SARC_FE) || (mid && s.lgeMin)) && !s.infl) o.manca.push("se l'infiammazione acuta è risolta");
+    if (mid && !s.pes) o.manca.push("l'esito della PES (anche «non fatta»)");
+    if (o.manca.length) return;
+    if (fe <= SOGLIE.SARC_FE) add(o, "sarc_fe");
+    if (s.pace) add(o, "sarc_pace");
+    if (fe > SOGLIE.SARC_FE && s.lge) { if (s.infl === "risolta") add(o, "sarc_lge"); else add(o, "sarc_attesa", "prima"); }
+    if (mid && s.pes === "pos") add(o, "sarc_pes");
+    if (mid && s.lgeMin && s.pes === "nf") { if (s.infl === "risolta") add(o, "sarc_pesEs", "esame"); else add(o, "sarc_attesa", "prima"); }
+  }
+
+  function fMioc(s, o) {
+    o.rim.push("disp");
+    if (!s.fase) { o.manca.push("la fase della miocardite"); return; }
+    if (s.fase === "acuta") {
+      if (sec(s)) add(o, "mioc_acuta");
+      else if (s.ev === "tvt" || s.ev === "sinc") { add(o, "mioc_aad", "alt"); add(o, "mioc_pri", "info"); }
+      else add(o, "mioc_pri", "info");
+      return;
+    }
+    if (sec(s)) { add(o, "mioc_cron"); return; }
+    if (s.ev === "tvt") { add(o, "mioc_tvt"); add(o, "mioc_abl", "alt"); return; }
+    add(o, "mioc_pri", "info");
+  }
+
+  function fChagas(s, o) {
+    if (s.ev === "arresto") { add(o, "g_sec"); add(o, "chagas_dub", "info"); return; }
+    if (s.ev === "tvnt" || s.ev === "tvt") {
+      if (!s.aad) { o.manca.push("se amiodarone e betabloccante sono già stati provati"); return; }
+      if (s.aad === "si") add(o, "chagas_icd"); else add(o, "chagas_amio", "prima");
+      add(o, "chagas_abl", "alt"); add(o, "chagas_dub", "info");
+      return;
+    }
+    add(o, "chagas_pri", "info");
+  }
+
+  function fChd(s, o) {
+    var t = s.chdTipo, fe = null, sintomi;
+    if (!t) { o.manca.push("quale cardiopatia congenita"); return; }
+    if (sec(s)) { add(o, "chd_sec"); add(o, "chd_les", "esame"); return; }
+    if (s.ev === "tvt") {
+      if (!s.chdSempl) { o.manca.push("se la cardiopatia è semplice o moderata con funzione biventricolare conservata"); return; }
+      add(o, "chd_les", "esame");
+      if (s.chdSempl === "si") { add(o, "chd_ablFig", "prima"); if (t === "tof") add(o, "chd_noIcd", "alt"); }
+      else add(o, "chd_icdFig");
+      if (t === "tof") add(o, "chd_tofAbl", "alt");
+      return;
+    }
+    if (t === "biv" || t === "tof") {
+      fe = campo(o, s.fe, 5, 85, "la FE del ventricolo sistemico");
+      if (fe !== null && fe <= SOGLIE.CHD_FE) { if (!s.nyha) o.manca.push("la classe NYHA"); campo(o, s.omt, 0, 240, "i mesi di terapia ottimale"); }
+    }
+    if ((t === "tof" || s.ev === "sinc") && !s.pes) o.manca.push("l'esito della PES (anche «non fatta»)");
+    if (o.manca.length) return;
+    if (fe !== null && fe <= SOGLIE.CHD_FE && (s.nyha === "2" || s.nyha === "3")) {
+      if (s.omt >= SOGLIE.OMT_MESI) add(o, "chd_biv"); else add(o, "chd_omt", "prima");
+    }
+    if (s.ev === "sinc") {
+      if (s.disfMod || s.pes === "pos") add(o, "chd_sinc");
+      else if (s.pes === "nf") add(o, "chd_sincPes", "esame");
+    }
+    if (t === "univ" && s.disfAv && s.chdFatt) add(o, "chd_univ");
+    if (t === "tof") {
+      sintomi = s.sint || s.ev === "sinc";
+      if (s.pes === "pos" && (sintomi || s.tofFatt)) add(o, "chd_tofIcd");
+      if (s.pes === "nf") {
+        if (sintomi && s.tvns) add(o, "chd_tofPes", "esame");
+        else if (!sintomi && s.tofFatt) add(o, "chd_tofPes2", "esame");
+      }
+    }
+  }
+
+  function fFvi(s, o) { add(o, "fvi_diag", "info"); if (s.ev === "arresto") add(o, "fvi_icd"); }
+  function fLqts(s, o) {
+    o.rim.push("qt");
+    if (s.ev === "arresto") { add(o, "lqts_arr"); return; }
+    if (s.ev === "tvnt" || s.ev === "sinc") {
+      if (!s.ter) { o.manca.push("se la terapia è già in corso"); return; }
+      if (s.ter === "in") add(o, "lqts_sint");
+      else if (s.ter === "nt") add(o, "lqts_nt");
+      else add(o, "lqts_bb", "prima");
+      return;
+    }
+    if (s.ev === "tvt") { add(o, "lqts_tvt", "info"); return; }
+    if (s.r123 === null || s.r123 === undefined) { add(o, "lqts_calc", "esame"); return; }
+    campo(o, s.r123, 0, 100, "il rischio 1-2-3 LQTS");
+    if (!s.giudQ) o.manca.push("se il profilo è ad alto rischio secondo il calcolatore");
+    if (o.manca.length) return;
+    if (s.giudQ === "si") add(o, "lqts_123"); else add(o, "lqts_bb", "info");
+  }
+  function fAts(s, o) {
+    if (sec(s)) { add(o, "ats_icd"); return; }
+    if (s.ev === "tvt" || s.ev === "sinc") add(o, "ats_iib");
+    if (s.ev === "sinc") add(o, "ats_ilr", "alt");
+  }
+  function fBrs(s, o) {
+    if (conEvento(s)) { add(o, "brs_icd"); return; }
+    if (s.ev === "sinc") { add(o, "brs_sinc"); add(o, "brs_ilr", "alt"); return; }
+    if (!s.tipo1) { o.manca.push("se il tipo 1 è spontaneo o solo indotto"); return; }
+    if (s.tipo1 === "spont" && !s.pes) { o.manca.push("l'esito della PES (anche «non fatta»)"); return; }
+    add(o, "brs_noAbl", "info");
+    if (s.tipo1 === "ind") { add(o, "brs_ind", "info"); return; }
+    if (s.pes === "nf") add(o, "brs_pes", "esame"); else if (s.pes === "pos") add(o, "brs_pesIcd");
+  }
+  function fErs(s, o) {
+    if (sec(s)) { add(o, "ers_icd"); return; }
+    if (s.ev === "tvt") return;
+    if (s.ev === "sinc") { if (s.famSD) add(o, "ers_sinc"); add(o, "ers_ilr", "alt"); return; }
+    if (s.erpAlto && s.famSD) add(o, "ers_asint");
+    else if (!s.erpAlto && !s.famSD) add(o, "ers_iso");
+    else if (s.erpAlto) add(o, "ers_seg", "info");
+    else add(o, "ers_ilr", "alt");
+  }
+  function fCpvt(s, o) {
+    add(o, "cpvt_pes", "info");
+    if (s.ev === "arresto") { add(o, "cpvt_arr"); return; }
+    if (s.ev === "no") { add(o, "cpvt_bb", "info"); return; }
+    if (!s.cpvtTer) { o.manca.push("se è già in betabloccante alla dose massima e flecainide"); return; }
+    if (s.cpvtTer === "max") add(o, "cpvt_icd");
+    else { add(o, "cpvt_bb", "prima"); add(o, "cpvt_flec", "alt"); }
+  }
+  function fSqts(s, o) {
+    if (conEvento(s)) { add(o, "sqts_icd"); return; }
+    if (s.ev === "sinc") { add(o, "sqts_sinc"); return; }
+    add(o, "sqts_pri", "info");
+  }
+
+  var FUN = { cad:fCad, vaso:fVaso,
+    dcm:function (s, o) { fDcm(s, o, "dcm"); }, ndlvc:function (s, o) { fDcm(s, o, "ndlvc"); },
+    lvnc:function (s, o) { fDcm(s, o, "lvnc"); }, valv:function (s, o) { fDcm(s, o, "valv"); },
+    hcm:fHcm, arvc:fArvc, rcm:fRcm, amil:fAmil, nm:fNm, sarc:fSarc, mioc:fMioc, chagas:fChagas, chd:fChd,
+    fvi:fFvi, lqts:fLqts, ats:fAts, brs:fBrs, ers:fErs, cpvt:fCpvt, sqts:fSqts };
+
+  // Quali campi servono: dipende solo dallo stato (lo stesso elenco decide che cosa si vede).
+  var CASELLE = ["tvns", "lge", "lgeMin", "avDelay", "ve200", "lge15", "aneur", "bp", "sarcomut", "noCalc", "asa", "arvcDef",
+    "sint", "palp", "nmPace", "nmFatt", "nmEcg", "pace", "disfMod", "disfAv", "chdFatt", "tofFatt", "erpAlto", "famSD"];
+  function visibili(s) {
+    var ez = s.ez, ev = s.ev, p = ev === "no" || ev === "sinc", v = {}, i, dcmL = inn(ez, ["dcm", "ndlvc", "lvnc"]);
+    var ventr = inn(s.chdTipo, ["biv", "tof"]), dm1 = ez === "nm" && s.nmTipo === "dm1";
+    v.w_rev = conEvento(s) && ez !== "vaso";
+    v.w_fe = (ez === "cad" && (p || ev === "tvt")) || (inn(ez, ["dcm", "ndlvc", "lvnc", "valv", "hcm", "arvc", "sarc"]) && p) || (ez === "chd" && p && ventr);
+    v.w_nyha = (inn(ez, ["cad", "dcm", "ndlvc", "lvnc", "valv"]) && p) || (ez === "chd" && p && ventr);
+    v.w_omt = v.w_nyha;
+    v.w_ima = ez === "cad" && p;
+    v.w_imaGg = v.w_ima && s.ima === "si";
+    v.w_gene = dcmL && p;
+    v.w_rLmna = v.w_gene && s.gene === "lmna";
+    v.w_rPln = v.w_gene && s.gene === "pln";
+    v.w_giudG = v.w_gene && inn(s.gene, ["lmna", "pln", "emd"]);
+    v.w_sesso = v.w_gene && s.gene === "tmem43";
+    v.w_eta16 = ez === "hcm" && p;
+    v.w_rHcm = v.w_eta16;
+    v.w_rvef = v.w_fac = v.w_rArvc = ez === "arvc" && p;
+    v.w_giudA = v.w_rArvc && s.rArvc !== null && s.rArvc !== undefined;
+    v.w_nmTipo = ez === "nm" && !!ev;
+    v.w_bbr = dm1 && conEvento(s);
+    v.w_nmAv = dm1 && ev === "sinc";
+    v.w_infl = ez === "sarc" && p;
+    v.w_fase = ez === "mioc" && !!ev;
+    v.w_aad = ez === "chagas" && inn(ev, ["tvnt", "tvt"]);
+    v.w_fenoR = ez === "amil" && sec(s);
+    v.w_chdTipo = ez === "chd" && !!ev;
+    v.w_chdSempl = ez === "chd" && ev === "tvt";
+    v.w_ter = ez === "lqts" && inn(ev, ["tvnt", "sinc"]);
+    v.w_r123 = ez === "lqts" && ev === "no";
+    v.w_giudQ = v.w_r123 && s.r123 !== null && s.r123 !== undefined;
+    v.w_cpvtTer = ez === "cpvt" && inn(ev, ["tvnt", "tvt", "sinc"]);
+    v.w_tipo1 = ez === "brs" && ev === "no";
+    v.w_pes = (inn(ez, ["cad", "dcm", "ndlvc", "lvnc", "valv", "arvc", "sarc", "chd"]) && p) || (dm1 && p) || (ez === "brs" && ev === "no" && s.tipo1 === "spont");
+    v.w_tvns = (inn(ez, ["cad", "dcm", "ndlvc", "lvnc", "valv", "arvc"]) && p) || (ez === "chd" && p && s.chdTipo === "tof");
+    v.w_lge = (inn(ez, ["dcm", "ndlvc", "lvnc", "valv", "sarc"]) && p) || (ez === "nm" && p && s.nmTipo === "dmd");
+    v.w_lgeMin = v.w_pace = ez === "sarc" && p;
+    v.w_avDelay = v.w_rLmna;
+    v.w_ve200 = v.w_sesso;
+    v.w_lge15 = v.w_aneur = v.w_bp = v.w_sarcomut = v.w_noCalc = v.w_asa = ez === "hcm" && p;
+    v.w_arvcDef = ez === "arvc" && p;
+    v.w_sint = (ez === "arvc" && p) || (ez === "chd" && p && s.chdTipo === "tof");
+    v.w_palp = v.w_nmEcg = v.w_nmFatt = dm1 && p;
+    v.w_nmPace = ez === "nm" && inn(s.nmTipo, ["dm1", "lgmd"]) && p;
+    v.w_disfMod = ez === "chd" && ev === "sinc";
+    v.w_disfAv = v.w_chdFatt = ez === "chd" && p && s.chdTipo === "univ";
+    v.w_tofFatt = ez === "chd" && p && s.chdTipo === "tof";
+    v.w_erpAlto = v.w_famSD = ez === "ers" && p;
+    v.caselle = false;
+    for (i = 0; i < CASELLE.length; i++) if (v["w_" + CASELLE[i]]) v.caselle = true;
+    v.w_valutati = v.caselle;
+    v.w_reperti = v.caselle;
+    return v;
+  }
+
+  function migliore(righe, y23) {
+    var b = null, i, x, rb, rx;
+    for (i = 0; i < righe.length; i++) {
+      x = righe[i];
+      if (x.k !== "icd" && x.k !== "contro") continue;
+      if ((x.a === "23") !== y23) continue;
+      if (!b) { b = x; continue; }
+      rx = RANGO[x.c]; rb = RANGO[b.c];
+      if (rx > rb || (rx === rb && (LIV[x.l] || 0) > (LIV[b.l] || 0))) b = x;
+    }
+    return b;
+  }
+  function attesa23(righe) { var i; for (i = 0; i < righe.length; i++) if (righe[i].k === "prima" && righe[i].a === "t23") return true; return false; }
+  function ha(righe, k) { var i; for (i = 0; i < righe.length; i++) if (righe[i].k === k) return true; return false; }
+  function unici(l) { var u = [], i; for (i = 0; i < l.length; i++) if (u.indexOf(l[i]) < 0) u.push(l[i]); return u; }
+
+  // Il cuore: dallo stato all'indicazione. Pura.
+  function sintesi(s) {
+    var o = { righe:[], manca:[], rim:[], stop:false, wcdIma:false }, r, i22, i23;
+    if (!s.ez) o.manca.push("la malattia (passo 1)");
+    if (!s.ev) o.manca.push("l'evento (passo 1)");
+    if (!o.manca.length && conEvento(s) && s.ez !== "vaso") {
+      if (!s.rev) o.manca.push("se c'è una causa reversibile (passo 1)");
+      else if (s.rev === "si") { add(o, "g_rev", "prima"); o.stop = true; }
+    }
+    if (!o.manca.length && !o.stop) {
+      FUN[s.ez](s, o);
+      if (visibili(s).caselle && !s.valutati) o.manca.push("la conferma di aver valutato i reperti (passo 2)");
+      if (!o.manca.length) {
+        if (s.trapianto && pri(s)) add(o, "g_tx");
+        if (s.lvad && conEvento(s)) add(o, "g_lvad");
+      }
+    }
+    r = { stato:null, prev:null, accanto:null, senza23:false, righe:o.righe, manca:o.manca, rim:unici(o.rim), wcdIma:o.wcdIma };
+    if (o.manca.length) { r.stato = "manca"; return r; }
+    if (o.stop) { r.stato = "stop"; return r; }
+    i22 = migliore(o.righe, false); i23 = migliore(o.righe, true);
+    if (CMP[s.ez] && i23) { r.prev = i23; r.accanto = i22; }
+    else if (i22) { r.prev = i22; r.accanto = i23; if (CMP[s.ez]) r.senza23 = attesa23(o.righe) ? "attesa" : "assente"; }
+    if (r.prev) { r.stato = r.prev.c === "III" ? "contro" : "icd"; return r; }
+    r.stato = ha(o.righe, "prima") ? "prima" : (ha(o.righe, "esame") ? "esame" : "nessuna");
+    return r;
+  }
+
+  // Le condizioni per impiantare: ESC 2022 Rec. Table 11 e 50; ESC 2023 Rec. Table 12.
+  function cancelli(s, r) {
+    var g = [], cmp = !!CMP[s.ez];
+    if (r.stato !== "icd") return g;
+    if (s.vita === "no") g.push({ st:"stop", righe:[rg("g_vita")].concat(cmp ? [rg("c_vita")] : []), t:"Attesa di vita di buona qualità sotto l'anno: l'ICD non si impianta." });
+    else if (s.vita === "si") g.push({ st:"ok", righe:[rg("g_vita")], t:"Attesa di vita di buona qualità oltre l'anno." });
+    else g.push({ st:"manca", righe:[], t:"Manca l'attesa di vita di buona qualità (passo 3): l'ICD si impianta solo se supera l'anno." });
+    if (s.incess) g.push({ st:"stop", righe:[rg("g_inc")].concat(cmp ? [rg("c_inc")] : []), t:"Aritmia incessante: prima la si controlla." });
+    if (s.anziano && pri(s)) g.push({ st:"warn", righe:[rg("g_anz", "info")], t:"Anziano con comorbidità." });
+    g.push({ st:"info", righe:cmp ? [rg("c_cond", "info"), rg("c_couns", "info")] : [rg("g_fine", "info")], t:"Decisione condivisa." });
+    return g;
+  }
+  function impianto(s, r) {
+    if (r.stato !== "icd") return null;
+    if (s.incess) return "nonora";
+    if (s.vita === "no") return "no";
+    if (!s.vita) return null;
+    return "si";
+  }
+
+  // Il dispositivo, il ponte, le alternative: ESC 2022 Rec. Table 12-15 e 20; ESC 2023 Rec. Table 12.
+  function dispositivo(s, r) {
+    var cmp = !!CMP[s.ez], d = { tipo:null, righe:[], perche:null, disp:false }, al, i;
+    if (r.stato !== "icd") return d;
+    if (impianto(s, r) !== "si") { d.perche = "prima le condizioni del passo 3"; return d; }
+    if (!s.icdPoss) { d.perche = "dimmi se l'ICD si può impiantare adesso (passo 4)"; return d; }
+    if (s.icdPoss === "temp") {
+      if (conEvento(s)) { d.tipo = "wcd"; d.righe.push(rg("g_wcd")); if (cmp) d.righe.push(rg("c_wcd")); }
+      else if (s.trapianto) { d.tipo = "wcd"; d.righe.push(rg("g_txWcd")); }
+      else { d.tipo = "attesa"; d.righe.push(rg("g_wcdNo", "info")); }
+      d.disp = s.ez === "mioc" || s.ez === "sarc";
+      return d;
+    }
+    if (s.icdPoss === "no") {
+      d.tipo = "alt";
+      if (conEvento(s)) { d.righe.push(rg("g_amio", "alt")); d.righe.push(rg("g_abl", "alt")); }
+      al = ALTERNATIVE[s.ez] || [];
+      for (i = 0; i < al.length; i++) d.righe.push(rg(al[i], "alt"));
+      for (i = 0; i < r.righe.length; i++) if (r.righe[i].k === "alt") d.righe.push(r.righe[i]);
+      return d;
+    }
+    d.tipo = s.crt ? "crtd" : ((s.bradi || s.atp || s.ez === "arvc") ? "tv" : "sicd");
+    d.righe.push(rg(cmp ? "c_crt" : "g_crt", "info"));
+    if (cmp) d.righe.push(rg("g_crt", "info"));
+    if (d.tipo === "sicd") { d.righe.push(rg("g_sicd", "info")); if (cmp) d.righe.push(rg("c_sicd", "info")); }
+    if (s.ez === "arvc") d.righe.push(rg("arvc_atp", "info"));
+    if (pri(s) && !s.bradi && !s.crt) d.righe.push(rg("g_mono", "info"));
+    d.righe.push(rg("g_coil", "info"));
+    return d;
+  }
+
+  /* ═══ TESTI DI CONTORNO: rimandi, confronti, incoerenze ════════════════ */
+  var TOOL = {
+    icdcrt: "<b>Tool ICD e CRT</b> (ESC 2026): l'ICD e la CRT nello scompenso con FEVS ≤35%, con le classi della linea guida dello scompenso. Qui resta la classe della ESC 2022; le differenze sono nel riquadro dei confronti.",
+    disp: "<b>Tool Dispositivi</b> (ESC 2025): WCD, ICD, pacing e ablazione dopo la miocardite e nella sarcoidosi, con le classi della linea guida della miocardite. Qui restano le righe della ESC 2022.",
+    hcmscd: "<b>Tool HCM SCD</b>: la decisione sull'ICD nella HCM fascia per fascia. Dai 16 anni calcola HCM Risk-SCD dai sette dati, con la formula della ESC 2014 (p. 2765); sotto i 16 anni non calcola HCM Risk-Kids, che si scrive. Qui si scrive il numero.",
+    lmna: "<b>Tool LMNA</b>: il rischio a 5 anni di aritmie ventricolari pericolose nei portatori di LMNA. Qui si scrive il numero.",
+    arvc: "<b>Tool ARVC</b>: il calcolatore ARVC 2019 aggiornato. Qui si scrive il numero, facoltativo.",
+    qt: "<b>Tool QT lungo</b>: la diagnosi col punteggio e la terapia per genotipo."
+  };
+  var CONF = {
+    gen: "<b>Scompenso, ESC 2026</b> (→ scheda 08): l'ICD in prevenzione secondaria è I A anche lì, con sopravvivenza attesa oltre 1 anno in buono stato e aritmia non comparsa entro 48 h da un infarto; WCD IIb C, per un periodo limitato, come ponte; decisione condivisa prima di ogni sostituzione del generatore IIa C; niente ICD in NYHA IV refrattaria senza prospettiva di CRT, assistenza ventricolare o trapianto III C; sull'S-ICD nessuna classe.",
+    pac: "<b>Pacing e CRT, ESC 2021</b> (→ scheda 06): CRT-D raccomandato nel candidato all'ICD che ha l'indicazione alla CRT, I A; nel candidato alla CRT, CRT-D da considerare con decisione condivisa, IIa B. Nella 2022 la stessa idea è un I C (valutare la CRT in ogni candidato all'ICD).",
+    sicd: "<b>AUC 2025</b> (→ scheda 06): l'S-ICD è «appropriato» in prevenzione primaria e dopo FV o TV polimorfa, «può essere appropriato» dopo una TV monomorfa sostenuta, perché manca l'ATP. Giudizi di appropriatezza, non classi.",
+    cad: ["<b>Scompenso, ESC 2026</b> (→ scheda 08, § 6.2): HFrEF ischemico, NYHA II–III, FEVS ≤35% dopo almeno 3 mesi di terapia ottimale, I B1 (qui I A). La 2026 non ha la riga della NYHA I con FEVS ≤30% né quella della TVNS con PES positiva (qui IIa B), e scrive il divieto che qui è solo nel testo: niente ICD primario entro 40 giorni dall'infarto, III B1.",
+      "<b>SCA, ESC 2023</b> (→ scheda 09): ICD con NYHA II–III e FEVS ≤35% dopo più di 3 mesi di terapia ottimale, almeno 6 settimane dopo l'infarto, I A, come qui; FEVS ≤40% alla dimissione rimisurata a 6–12 settimane, I C, come qui. In più la 2023 dà ICD o WCD prima dei 40 giorni in pazienti selezionati (rivascolarizzazione incompleta, FEVS già ridotta, aritmie oltre 48 h, TV polimorfa o FV), IIb C; qui c'è solo il WCD, IIb B."],
+    dcm: ["<b>Scompenso, ESC 2026</b> (→ scheda 08, § 6.2): HFrEF non ischemico sintomatico, NYHA II–III, LVEF ≤35% dopo almeno 3 mesi di terapia fondazionale, IIa B1; prevenzione secondaria I A. Stessa classe della DCM qui, livello in un sistema suo. Sopra il 35% la 2026 non dà indicazioni: per gene, LGE e sincope valgono la 2022 e, dove dice altro, la 2023.",
+      "<b>AUC 2025</b> (→ scheda 06, § 7): DCM non ischemica con sincope inspiegata, ICD «appropriato» con LVEF ≤35%, «può essere appropriato» con LVEF 36–49% e ≥50%; con TV monomorfa sostenuta stabile «appropriato» a ogni LVEF. Giudizi di appropriatezza, non classi."],
+    hcm: ["<b>AUC 2025</b> (→ scheda 06): nella HCM con almeno un fattore — spessore ≥30 mm, morte improvvisa in un parente di primo grado, sincope inspiegata negli ultimi 6 mesi, TVNS, risposta pressoria anomala allo sforzo — l'ICD è «appropriato». È un approccio per fattori, che tiene la risposta pressoria tolta dalla ESC 2023: con un fattore solo e un rischio sotto il 4%, AUC ed ESC rispondono diverso."],
+    arvc: ["<b>AUC 2025</b> (→ scheda 06): ICD «appropriato» nell'ARVC con TV/FV sostenuta, ablata con successo o no, e con sincope inspiegata, qualunque sia l'esito della PES o dell'ablazione. Giudizi di appropriatezza, non classi.",
+      "<b>Miocardite, ESC 2025</b> (→ scheda 03): le «fasi calde» (dolore toracico, ECG alterato e troponina con coronarie normali) possono essere una presentazione dell'ARVC, soprattutto nei giovani e nei portatori di DSP; il loro peso nella stratificazione è ancora da chiarire."],
+    lvnc: ["<b>AUC 2025</b> (→ scheda 06): non compattazione con FEVS >35%, ICD «può essere appropriato». Coerente con la ESC: a FE non ridotta le trabecole da sole non bastano."],
+    amil: ["<b>AUC 2025</b> (→ scheda 06): amiloidosi con scompenso, in terapia da meno di 3 mesi, ICD «può essere appropriato» con FEVS ≤35% e sopra il 35%. Più aperto della ESC 2023, che non sostiene l'ICD primario nell'amiloidosi."],
+    nm: ["<b>Pacing, ESC 2021</b> (→ scheda 06): con BAV di II o III grado o HV ≥70 ms, pacing I C; con PR ≥240 ms o QRS ≥120 ms pacemaker IIb C direttamente (qui prima lo studio, IIa B). Nelle laminopatie (Emery-Dreifuss, cingoli) con criteri di pacing, o con PR lungo e blocco di branca sinistra, ICD con funzione di pacing IIa C se la sopravvivenza attesa supera l'anno. Quando il pacing è indicato in una malattia neuromuscolare, CRT o ICD vanno considerati.",
+      "<b>AUC 2025</b> (→ scheda 06): distrofia miotonica in terapia da meno di 3 mesi, ICD «appropriato» con FEVS ≤35%, «può essere appropriato» sopra. La ESC 2022 decide sull'esito dello studio e sulla presentazione, non sulla FE."],
+    sarc: ["<b>Miocardite, ESC 2025</b> (→ scheda 03 e Tool Dispositivi): ICD con TV/FV sostenuta o arresto I B in entrambe; con FEVS ≤35% I C (qui I B). Sopra il 35% una riga sola IIa C, a fase attiva risolta: LGE significativo, aritmie in anamnesi, sincope inspiegata, aritmia sostenuta inducibile alla PES, BAV avanzato persistente. Qui il LGE è IIa B, il pacing vale a qualunque FEVS senza aspettare la fine dell'infiammazione, la PES si fa solo con FEVS 35–50% e LGE minore, e sincope e aritmie in anamnesi non sono criteri.",
+      "<b>Pacing, ESC 2021</b> (→ scheda 06): sarcoidosi con BAV permanente o transitorio, dispositivo capace di pacing IIa C, con l'ICD secondo le linee guida pertinenti; con indicazione al pacing e FEVS <50%, CRT-D IIa C. Qui il CRT-D non è nominato: la soglia del 50% viene dalla 2021."],
+    mioc: ["<b>Miocardite, ESC 2025</b> (→ scheda 03 e Tool Dispositivi): nella fase acuta l'ICD è IIb C per ogni aritmia sostenuta (qui IIa C, prima della dimissione, per la TV/FV non tollerata); prima il WCD per 3–6 mesi come ponte al recupero, IIa C (qui nessuna raccomandazione), e la decisione sull'ICD di norma a 3–6 mesi. Fase cronica: stesse classi, ma con miocardite non attiva alla CMR e TV sostenuta anche non monomorfa. Prevenzione primaria dopo 3–6 mesi con fattori persistenti (TVNS, LGE esteso, sincope inspiegata, PES positiva, FEVS <50%), IIb C: qui non c'è. L'ablazione al posto dell'ICD (qui IIb C) non ha una riga nella 2025."],
+    valv: ["<b>Valvulopatie, ESC/EACTS 2025</b> (→ scheda 04): nessuna raccomandazione con classe sulle aritmie ventricolari del prolasso mitralico, come qui; il carico aritmico è legato alla disgiunzione anulare più che alla gravità dell'insufficienza."]
+  };
+  CONF.ndlvc = CONF.dcm;
+  var INC = [
+    { ez:["cad"], t:"<b>PES dopo la TVNS.</b> In tabella la PES ha la classe I solo per la sincope inspiegata dopo lo STEMI; nella Fig. 15 la PES di classe I segue anche la sola TVNS (Rec. Table 24, p. 4047; Fig. 15, p. 4048).", tocca:function (s) { return !!s.tvns && pri(s); } },
+    { ez:["cad"], t:"<b>NYHA.</b> La riga della FEVS ≤35% dice NYHA II–III, la Fig. 15 «≥II», e la figura non ripete i 3 mesi di terapia ottimale. Lettura prudente: la tabella (p. 4047; p. 4048).", tocca:function (s) { return s.nyha === "4" && pri(s); } },
+    { ez:["cad"], t:"<b>TV tollerata con FEVS <40%.</b> La Fig. 16 dà l'ICD in classe I a tutto il ramo FEVS <40%, anche alla TV ben tollerata; la tabella dà la I alla FV e alla TV non tollerata (p. 4049; p. 4047).", tocca:function (s) { return s.ev === "tvt" && s.fe !== null && s.fe < 40; } },
+    { ez:["dcm", "ndlvc", "lvnc", "valv"], t:"<b>Fig. 19 e Rec. Table 28.</b> La figura scrive la fascia 36–50%, la riga LVEF <50%; il ramo ≤35% della figura non ripete NYHA II–III e i 3 mesi; LMNA ha un ramo suo nella figura (fuori dall'elenco dei fattori, nota a) e nella riga la nota d la manda alle sue raccomandazioni: per questo LMNA non conta fra i due fattori della IIa C, e decide la riga del 10%. Per il resto valgono le righe (p. 4055; p. 4057).", tocca:function (s) { return pri(s); } },
+    { ez:["dcm", "ndlvc", "lvnc"], t:"<b>Tre mesi.</b> La 2022 scrive «almeno 3 mesi» di terapia ottimale, la 2023 «più di 3 mesi»: a 3 mesi esatti la riga 2022 vale, quella 2023 non ancora (p. 4057; pp. 3566 e 3568).", tocca:function (s) { return pri(s) && s.omt === 3 && s.fe !== null && s.fe <= 35; } },
+    { ez:["dcm", "ndlvc", "lvnc"], t:"<b>Fig. 17 della 2023.</b> La figura scrive LVEF <35%, le righe ≤35%, e il ramo «LVEF <35%» della figura porta all'ICD IIa senza chiedere lo scompenso sintomatico né i 3 mesi che la riga IIa A vuole: lo strumento segue la riga. Il gene ad alto rischio senza fattori aggiuntivi è IIb C in tabella, mentre nella figura, senza sincope né LGE, non porta all'ICD. Lo strumento segue la riga, «in pazienti selezionati» (pp. 3565–3566).", tocca:function (s) { return pri(s) && (s.fe === 35 || (s.fe > 35 && !!ALTO[s.gene]) || (s.fe !== null && s.fe < 35 && s.nyha === "1")); } },
+    { ez:["hcm"], t:"<b>LGE esteso.</b> La nota della Fig. 16 della 2023 lo definisce «>15%», la tabella e il testo «≥15%»: con il 15% esatto vale la tabella (p. 3561). E l'attesa di vita è «≥1 anno» nella figura, «>1 anno» nella Rec. Table 12 (p. 3545).", tocca:function (s) { return !!s.lge15; } },
+    { ez:["hcm"], t:"<b>Alcolizzazione settale.</b> La 2022 esclude il calcolatore anche dopo l'alcolizzazione (p. 4062); la 2023 lo dice validato lì in un solo studio, e non validato prima e dopo la miectomia (p. 3560). Lo strumento segue la 2023.", tocca:function (s) { return !!s.asa || !!s.noCalc; } },
+    { ez:["arvc"], t:"<b>Prevenzione secondaria nell'ARVC.</b> I A nella Rec. Table 29 (p. 3571), I B nella Rec. Table 12 (p. 3545), per la stessa situazione. Lo strumento usa la tabella dell'ARVC.", tocca:function (s) { return sec(s); } },
+    { ez:["arvc"], t:"<b>Caratteristiche ad alto rischio.</b> La tabella dice che «aiutano la decisione» (IIa B); la Fig. 18 le porta all'«ICD, classe IIa». La sincope compare due volte: TV sincopale documentata → classe I; sincope cardiaca senza TV documentata → caratteristica ad alto rischio (pp. 3571–3572).", tocca:function (s) { return pri(s); } },
+    { ez:["arvc"], t:"<b>Una riga spezzata.</b> Nella 2022 la riga IIa C della disfunzione moderata continua in cima alla colonna accanto: «TVNS o TVMS inducibile alla PES» fa parte della stessa riga (p. 4060).", tocca:function (s) { return !!s.sint && pri(s); } },
+    { ez:["nm"], t:"<b>QRS e sincope.</b> QRS «>120 ms» nella Fig. 23, «≥120 ms» nella tabella: 120 esatti bastano. La sincope sospetta con studio negativo nella figura non porta all'ICD, la tabella dà IIa C alla sincope senza ritardo AV: vale la tabella. Nella riga IIa B dello studio, le condizioni sopra i 40 anni hanno livello C in nota (pp. 4064–4065).", tocca:function (s) { return s.ev === "sinc" || !!s.nmEcg; } },
+    { ez:["nm"], t:"<b>Cingoli 1B ed Emery-Dreifuss.</b> Nel testo l'ICD si considera anche con LGE significativo alla CMR, senza indicazione al pacing; la riga lo omette (p. 4065).", tocca:function (s) { return s.nmTipo === "lgmd"; } },
+    { ez:["sarc"], t:"<b>Soglie della sarcoidosi.</b> Il testo scrive FEVS «<35%», la tabella e la Fig. 24 «≤35%»: con 35% esatto vale la tabella (I B). LGE significativo: «≥9 segmenti su 29» nel testo, «9 su 22» nella nota della figura (pp. 4067–4068).", tocca:function (s) { return s.fe === 35 || !!s.lge; } },
+    { ez:["chd"], t:"<b>Fig. 26 e Rec. Table 39.</b> La figura dà l'ablazione in classe I a ogni cardiopatia semplice o moderata con TV tollerata, e l'ICD in classe I a tutto il ramo «No»; la tabella dà la I all'ablazione solo nel Fallot e all'ICD solo con TV non tollerata o arresto. La nota della tabella chiama «Class I-B» la riga del Fallot stampata I C (pp. 4071–4073).", tocca:function (s) { return s.ev === "tvt"; } },
+    { ez:["lqts"], t:"<b>Il calcolatore 1-2-3 LQTS.</b> Il passo della stima del rischio è IIb nella Fig. 31 e IIa C in tabella (p. 4078).", tocca:function (s) { return s.ev === "no"; } },
+    { ez:["brs"], t:"<b>Asintomatico con tipo 1 spontaneo.</b> Nella Fig. 33 va al follow-up, senza la PES (IIb B) né l'ICD (IIb C) della tabella: lo strumento segue la tabella (pp. 4081–4082).", tocca:function (s) { return s.ev === "no" && s.tipo1 === "spont"; } },
+    { ez:["ers"], t:"<b>Elementi di rischio.</b> La tabella chiama «ad alto rischio» sia i reperti dell'ECG (nota c) sia la storia familiare (nota d); la Fig. 34 li mette insieme. Onde J «>2 mm» in nota, «≥2 mm» nel testo (pp. 4081, 4083–4084).", tocca:function (s) { return pri(s); } },
+    { ez:["cpvt"], t:"<b>Flecainide dopo l'arresto.</b> Tabella e testo la vogliono subito, con ICD e betabloccante (I C); la Fig. 35 la aggiunge solo dopo una recidiva (pp. 4085–4086).", tocca:function (s) { return s.ev === "arresto"; } },
+    { ez:["amil"], t:"<b>Amiloidosi e arresto.</b> La riga della 2022 nomina la TV non tollerata; lo strumento la applica anche all'arresto da FV, perché la Rec. Table 12 rimanda alla sezione della malattia per gli aspetti specifici (p. 4040). La 2023 non ha una riga per l'amiloidosi: con fenotipo restrittivo vale quella della cardiomiopatia restrittiva (I C, p. 3574).", tocca:function (s) { return sec(s); } },
+    { ez:["mioc"], t:"<b>Miocardite cronica e arresto.</b> La riga I C nomina la TV monomorfa non tollerata; lo strumento la applica anche all'arresto nella fase cronica, per lo stesso rimando della Rec. Table 12 (p. 4040).", tocca:function (s) { return s.ev === "arresto" && s.fase === "cronica"; } },
+    { ez:["chagas"], t:"<b>Chagas e TV non tollerata.</b> La Rec. Table 12 darebbe I A a ogni TV non tollerata; la sezione del Chagas mette l'ICD per ultimo, dopo amiodarone e betabloccante (IIb C), e lo strumento segue la sezione. Per l'arresto, che la sezione non nomina, resta la riga generale (p. 4040; p. 4070).", tocca:function (s) { return conEvento(s); } }
+  ];
+
+  /* ═══ STATO E DISEGNO ═════════════════════════════════════════════════ */
+  function el(id) { return document.getElementById(id); }
+  function ckv(id) { var e = el(id); return !!(e && e.checked); }
+  function num(id) { var v = el(id).value; if (v === "") return null; var n = parseFloat(String(v).replace(",", ".")); return isNaN(n) ? null : n; }
+  function radio(n) { var e = document.querySelector('input[name="' + n + '"]:checked'); return e ? e.value : ""; }
+  var RADIO = ["ev", "rev", "nyha", "ima", "giudG", "sesso", "eta16", "giudA", "nmTipo", "bbr", "nmAv", "infl", "fase", "aad", "fenoR",
+    "chdTipo", "chdSempl", "ter", "giudQ", "cpvtTer", "tipo1", "pes", "vita", "icdPoss"];
+  var NUMERI = ["fe", "omt", "imaGg", "rLmna", "rPln", "rHcm", "rvef", "fac", "rArvc", "r123"];
+  var ALTRE = ["valutati", "incess", "anziano", "trapianto", "lvad", "bradi", "crt", "atp"];
+  function S() {
+    var s = { ez:el("ez").value, gene:el("gene").value }, i;
+    for (i = 0; i < RADIO.length; i++) s[RADIO[i]] = radio(RADIO[i]);
+    for (i = 0; i < NUMERI.length; i++) s[NUMERI[i]] = num(NUMERI[i]);
+    for (i = 0; i < CASELLE.length; i++) s[CASELLE[i]] = ckv(CASELLE[i]);
+    for (i = 0; i < ALTRE.length; i++) s[ALTRE[i]] = ckv(ALTRE[i]);
+    return s;
+  }
+  // Uno stato vuoto, per provare il motore da fuori (collaudo).
+  function vuoto(extra) {
+    var s = { ez:"", gene:"" }, i, k;
+    for (i = 0; i < RADIO.length; i++) s[RADIO[i]] = "";
+    for (i = 0; i < NUMERI.length; i++) s[NUMERI[i]] = null;
+    for (i = 0; i < CASELLE.length; i++) s[CASELLE[i]] = false;
+    for (i = 0; i < ALTRE.length; i++) s[ALTRE[i]] = false;
+    for (k in extra) if (Object.prototype.hasOwnProperty.call(extra, k)) s[k] = extra[k];
+    return s;
+  }
+
+  function pgs(p) { return ' <span class="pg">' + p + "</span>"; }
+  function corPill(c, l, a) {
+    if (!c) return '<span class="cor cf">testo</span>';
+    var k = { "I":"c1", "IIa":"c2a", "IIb":"c2b", "III":"c3" }[c];
+    return '<span class="cor ' + k + '">' + c + "</span>" + (l ? ' <span class="cor ' + k + '" style="opacity:.85">' + l + "</span>" : "");
+  }
+  function annoTag(a) {
+    if (a === "23" || a === "t23") return '<span class="anno y23">2023</span>';
+    if (a === "f22") return '<span class="anno">2022 · solo figura</span>';
+    return '<span class="anno">2022</span>';
+  }
+  function riga(x, prev) {
+    return '<div class="rg' + (prev ? " prev" : "") + '" data-id="' + x.id + '"><span class="cl">' + corPill(x.c, x.l, x.a) + " " + annoTag(x.a) + '</span><span class="tx">' + x.t + "." + pgs(x.pg) + "</span></div>";
+  }
+  function nota(g, t) { return '<div class="nota ' + (g || "") + '">' + t + "</div>"; }
+  function passo(ico, t, att) { return '<div class="passo' + (att ? " att" : "") + '"><span class="ico">' + ico + '</span><span class="tx">' + t + "</span></div>"; }
+  var DICI = { "I":"ICD raccomandato", "IIa":"ICD da considerare", "IIb":"ICD considerabile", "III":"ICD non raccomandato" };
+  var STATI = { prima:"Prima un altro passo", esame:"Prima un esame", nessuna:"Nessuna indicazione all'ICD", stop:"Prima si corregge la causa" };
+
+  function annoTxt(a) { return a === "23" ? "ESC 2023" : (a === "f22" ? "ESC 2022, figura" : "ESC 2022"); }
+
+  function disegnaInd(s, r) {
+    var h = "<h3>L'indicazione" + (s.ez ? " — " + NOME[s.ez] : "") + "</h3>", i, x, alt = [], pr = [], inf = [], es = [], ic = [];
+    if (r.stato === "manca") {
+      h += '<div class="esito"><span class="cat kx">—</span><span class="muted">Manca ' + r.manca.join("; ") + ".</span></div>";
+      return h;
+    }
+    if (r.stato === "icd" || r.stato === "contro") {
+      h += '<div class="esito"><span class="big">' + DICI[r.prev.c] + "</span>" + corPill(r.prev.c, r.prev.l, r.prev.a) + " " + annoTag(r.prev.a) + "</div>";
+      if (r.prev.a === "f22") h += nota("", "Questa classe sta <b>solo nella figura</b>: la tabella non ha una riga per questo paziente (riquadro delle incoerenze).");
+      if (r.accanto) h += nota("info", "<b>Accanto, " + annoTxt(r.accanto.a) + ":</b> " + DICI[r.accanto.c].replace("ICD ", "") + " " + corPill(r.accanto.c, r.accanto.l, r.accanto.a) + "." + (CMP[s.ez] && r.prev.a === "23" ? " Nelle cardiomiopatie prevale la 2023." : ""));
+      else if (r.senza23 === "attesa") h += nota("info", "La riga della ESC 2023 non è ancora soddisfatta (vedi «Prima di tutto»): per ora resta quella della 2022.");
+      else if (r.senza23) h += nota("info", "La ESC 2023 non ha una riga per questo paziente: resta quella della 2022.");
+      else if (r.prev.a === "23" && CMP[s.ez]) h += nota("info", "La ESC 2022 non ha una riga per questo paziente: decide la 2023.");
+    } else {
+      h += '<div class="esito"><span class="big">' + STATI[r.stato] + "</span></div>";
+    }
+    for (i = 0; i < r.righe.length; i++) {
+      x = r.righe[i];
+      if (x === r.prev) continue;
+      if (x.k === "icd" || x.k === "contro") ic.push(x);
+      else if (x.k === "prima") pr.push(x);
+      else if (x.k === "esame") es.push(x);
+      else if (x.k === "alt") alt.push(x);
+      else inf.push(x);
+    }
+    if (r.prev || ic.length) {
+      h += "<h4>Le righe dell'ICD che toccano il paziente</h4>";
+      if (r.prev) h += riga(r.prev, true);
+      for (i = 0; i < ic.length; i++) h += riga(ic[i], false);
+    }
+    if (pr.length) { h += "<h4>Prima di tutto</h4>"; for (i = 0; i < pr.length; i++) h += riga(pr[i], r.stato === "prima" || r.stato === "stop"); }
+    if (es.length) { h += "<h4>Esami che decidono</h4>"; for (i = 0; i < es.length; i++) h += riga(es[i], r.stato === "esame"); }
+    if (alt.length) { h += "<h4>Alternative e passi accanto</h4>"; for (i = 0; i < alt.length; i++) h += riga(alt[i], false); }
+    if (inf.length) { h += "<h4>Da sapere</h4>"; for (i = 0; i < inf.length; i++) h += riga(inf[i], false); }
+    if (r.stato === "nessuna" && !ic.length && !inf.length) h += nota("spenta", "Nessuna riga delle due linee guida indica l'ICD per questa combinazione di malattia ed evento.");
+    for (i = 0; i < r.rim.length; i++) h += nota("info", "Rimando — " + TOOL[r.rim[i]]);
+    return h;
+  }
+
+  function disegnaCasc(s, r) {
+    var h = "<h3>La cascata</h3>", g, d, i, j, t, ico = { ok:"✓", stop:"✕", manca:"?", warn:"!", info:"·" };
+    if (r.stato !== "icd") {
+      if (r.wcdIma) {
+        h += passo("→", "Nei primi 40 giorni il <b>WCD</b> si può considerare in pazienti selezionati " + corPill("IIb", "B") + pgs(RIGHE.g_wcdIma[4]) + ".", true);
+        if (s.trapianto) h += passo("·", "In attesa di trapianto: WCD " + corPill("IIb", "C") + pgs(RIGHE.g_txWcd[4]) + ".");
+      }
+      h += nota("spenta", r.stato === "manca" ? "La cascata parte quando l'indicazione è completa." : "La cascata parte da un'indicazione all'ICD: qui non c'è, o non ancora.");
+      return h;
+    }
+    g = cancelli(s, r);
+    h += "<h4>Le condizioni per impiantare</h4>";
+    for (i = 0; i < g.length; i++) {
+      t = g[i].t;
+      for (j = 0; j < g[i].righe.length; j++) t += " " + corPill(g[i].righe[j].c, g[i].righe[j].l) + " " + annoTag(g[i].righe[j].a) + " " + g[i].righe[j].t + "." + pgs(g[i].righe[j].pg);
+      h += passo(ico[g[i].st], t, g[i].st === "stop" || g[i].st === "manca");
+    }
+    d = dispositivo(s, r);
+    h += "<h4>Il dispositivo</h4>";
+    if (d.perche) h += passo("?", "Manca: " + d.perche + ".", true);
+    if (d.tipo === "crtd") h += passo("→", "<b>CRT-D</b>: c'è l'indicazione alla resincronizzazione.", true);
+    if (d.tipo === "tv") h += passo("→", "<b>ICD transvenoso</b>: " + (s.bradi ? "serve il pacing antibradicardico (bicamerale se serve anche quello atriale)" : (s.atp ? "si prevede di servirsi dell'ATP" : "nell'ARVC serve l'ATP")) + ".", true);
+    if (d.tipo === "sicd") h += passo("→", "<b>ICD sottocutaneo possibile</b> in alternativa al transvenoso: non servono pacing, CRT né ATP.", true);
+    if (d.tipo === "wcd") h += passo("→", "<b>Defibrillatore indossabile (WCD)</b> come ponte, finché l'ICD non si può impiantare.", true);
+    if (d.tipo === "attesa") h += passo("→", "<b>L'impianto si rimanda</b>: in prevenzione primaria il WCD non ha una raccomandazione propria.", true);
+    if (d.tipo === "alt") h += passo("→", "<b>ICD non disponibile, controindicato o rifiutato</b>: le alternative della fonte.", true);
+    for (i = 0; i < d.righe.length; i++) h += riga(d.righe[i], false);
+    if (d.disp) h += nota("info", "La ESC 2025 dà il WCD come ponte di 3–6 mesi dopo un'aritmia sostenuta nella miocardite (IIa C): " + TOOL.disp);
+    if (s.lvad) h += nota("", "Nel portatore di LVAD la decisione tiene conto dei rischi propri dell'assistenza (riga IIa B, " + RIGHE.g_lvad[4] + ").");
+    return h;
+  }
+
+  function disegnaConf(s, r, d) {
+    var l = [], i, c = CONF[s.ez];
+    if (c) for (i = 0; i < c.length; i++) l.push(c[i]);
+    if (r.stato === "icd") { l.push(CONF.gen); l.push(CONF.pac); }
+    if (d && d.tipo === "sicd") l.push(CONF.sicd);
+    if (!l.length) return nota("spenta", s.ez ? "Per questa malattia le schede del progetto non hanno un confronto con un'altra linea guida sull'ICD." : "Scegli la malattia.");
+    return nota("info", l.join("</div><div class=\"nota info\">"));
+  }
+
+  function disegnaInc(s, r) {
+    var h = "", i, x, t;
+    for (i = 0; i < INC.length; i++) {
+      x = INC[i];
+      if (x.ez.indexOf(s.ez) < 0) continue;
+      t = r.stato !== "manca" && x.tocca(s);
+      h += nota(t ? "" : "spenta", (t ? "<b>Tocca questo caso.</b> " : "") + x.t);
+    }
+    return h || nota("spenta", s.ez ? "Per questa malattia nessuna incoerenza della fonte tocca l'indicazione all'ICD." : "Scegli la malattia.");
+  }
+
+  function limiti(s, r) {
+    var l = [];
+    l.push("I punteggi di rischio (HCM Risk-SCD, HCM Risk-Kids, LMNA, PLN, ARVC, 1-2-3 LQTS) <b>non si calcolano qui</b>: si scrive il numero ottenuto altrove. Dove la fonte non fissa una soglia — LMNA e PLN nella 2023, ARVC, 1-2-3 LQTS — il peso del numero lo decide il medico, nella decisione condivisa.");
+    l.push("<b>Nessuna dose, e quindi niente rene</b>: lo strumento non dà farmaci né posologie. Amiodarone, chinidina, betabloccanti e flecainide hanno dose e rene nel prontuario del capitolo.");
+    l.push("Nelle cardiomiopatie prevale la ESC 2023, con la riga 2022 accanto; dove la 2023 non parla (coronaropatia, malattie infiammatorie, congenite, neuromuscolari, malattie elettriche) vale la 2022. Le classi sono quelle della fonte, senza normalizzare; le righe «solo figura» non hanno una riga in tabella.");
+    if (s.ez === "cad") l.push("La ESC 2022 non dà un intervallo dalla rivascolarizzazione per decidere l'ICD: i soli cancelli temporali dopo l'infarto sono i 40 giorni e le 6 settimane (p. 4046), oltre ai 3 mesi di terapia ottimale (p. 4047).");
+    if (inn(s.ez, ["cad", "dcm", "ndlvc", "lvnc", "valv"])) l.push("Lo scompenso con FEVS ≤35% ha una linea guida più recente, la ESC 2026: qui resta la classe della 2022, e l'altra è nel Tool ICD e CRT.");
+    if (s.ez === "mioc" || s.ez === "sarc") l.push("La miocardite e la sarcoidosi hanno una linea guida più recente, la ESC 2025: le sue classi sono nel Tool Dispositivi.");
+    if (s.ez === "lqts") l.push("Il rischio 1-2-3 LQTS lo legge il <b>Tool 1-2-3 LQTS</b> dalla Tab. 2 del paper (Mazzanti 2018: rischio a 5 anni per fasce di 10 ms di QTc e genotipo), che non pubblica una formula. Qui si scrive quel numero, e la soglia dell'«alto rischio» la sceglie il medico: la linea guida non la fissa (p. 4078).");
+    if (s.ez === "hcm" && s.eta16 === "no") l.push("Sotto i 16 anni il numero viene da HCM Risk-Kids, che nessuno strumento del progetto calcola.");
+    if (s.ez === "valv") l.push("La valvulopatia segue i criteri della DCM della <b>2022</b>: la 2023 definisce la DCM escludendo le condizioni di carico anomale, e le sue righe non si trasferiscono da sole.");
+    if (s.ez === "nm") l.push("Il pacing nelle malattie neuromuscolari (BAV, HV ≥70 ms) e il tipo di stimolazione sono nella scheda del pacing e nei suoi strumenti: qui solo l'ICD.");
+    l.push("Programmazione dell'ICD, terapie inappropriate, complicanze e fine vita: nella scheda del capitolo (Rec. Table 16–21, pp. 4041–4043).");
+    l.push("Strumento di consultazione: la decisione sull'ICD resta condivisa con il paziente, e la fonte la vuole così.");
+    return "<li>" + l.join("</li><li>") + "</li>";
+  }
+
+  function testoCampo(v, a, b, unita) { if (v === null) return "—"; if (!(v >= a && v <= b)) return "fuori scala"; return fmt(v) + (unita || ""); }
+
+  function disegna() {
+    var s = S(), v = visibili(s), r = sintesi(s), d, k, e, i, chk, inp, on, ch, imp;
+    for (k in v) if (Object.prototype.hasOwnProperty.call(v, k) && k.indexOf("w_") === 0) { e = el(k); if (e) e.className = e.className.replace(/(^|\s)hide(\s|$)/g, " ").replace(/\s+$/, "") + (v[k] ? "" : " hide"); }
+    el("vuoto2").className = (s.ez && s.ev) ? "muted hide" : "muted";
+    chk = document.querySelectorAll(".chk");
+    for (i = 0; i < chk.length; i++) {
+      inp = chk[i].querySelector("input"); on = !!(inp && inp.checked);
+      if (on && (" " + chk[i].className + " ").indexOf(" on ") < 0) chk[i].className += " on";
+      if (!on) chk[i].className = chk[i].className.replace(/(^|\s)on(\s|$)/g, " ").replace(/\s+$/, "");
+    }
+    // etichette che cambiano con la malattia
+    el("revSub").innerHTML = s.ez === "cad" ? "per la coronaropatia: ischemia in corso, o aritmia entro 48 h dall'infarto" : "ischemia acuta, disturbi elettrolitici, farmaci, tossici";
+    el("pesSub").innerHTML = s.ez === "brs" ? "FV inducibile con al massimo 2 extrastimoli?" : (s.ez === "nm" ? "TV non da rientro branca-branca indotta allo studio?" : "TV monomorfa sostenuta inducibile?");
+    el("sintTx").innerHTML = s.ez === "chd" ? "Sintomi aritmici<small>palpitazioni, presincope</small>" : "Sintomi sospetti di aritmia ventricolare<small>presincope o palpitazioni</small>";
+    el("lgeTx").innerHTML = s.ez === "sarc" ? "LGE significativo alla CMR<small>a infiammazione risolta; per esempio ≥9 segmenti su 29 o ≥22% della massa VS</small>" : (s.ez === "nm" ? "LGE significativo alla CMR" : "LGE alla CMR<small>fibrosi non ischemica</small>");
+    el("rHcmSub").innerHTML = s.eta16 === "no" ? "HCM Risk-Kids, calcolato altrove" : "HCM Risk-SCD, dal calcolatore indicato dalla linea guida";
+    el("stage2w").innerHTML = s.ez ? NOME[s.ez] : "secondo la malattia";
+    // valori accanto ai numeri
+    el("vFe").innerHTML = testoCampo(s.fe, 5, 85, "%");
+    el("vOmt").innerHTML = s.omt === null ? "—" : (s.omt >= 0 && s.omt <= 240 ? (s.omt >= 3 ? "3 mesi raggiunti" : "meno di 3 mesi") : "fuori scala");
+    el("vIma").innerHTML = s.imaGg === null ? "—" : (!(s.imaGg >= 0 && s.imaGg <= 365) ? "fuori scala" : (s.imaGg < 40 ? "entro 40 giorni" : (s.imaGg < 42 ? "entro 6 settimane" : "oltre 6 settimane")));
+    el("vLmna").innerHTML = s.rLmna === null ? "—" : (!(s.rLmna >= 0 && s.rLmna <= 100) ? "fuori scala" : (s.rLmna >= 10 ? "≥10%: soglia 2022" : "sotto il 10%"));
+    el("vPln").innerHTML = testoCampo(s.rPln, 0, 100, "%");
+    el("vHcm").innerHTML = s.rHcm === null ? "—" : (!(s.rHcm >= 0 && s.rHcm <= 100) ? "fuori scala" : (s.rHcm >= 6 ? "alto (≥6%)" : (s.rHcm >= 4 ? "intermedio (4–6%)" : "basso (<4%)")));
+    el("vRvef").innerHTML = testoCampo(s.rvef, 5, 85, "%");
+    el("vFac").innerHTML = testoCampo(s.fac, 1, 80, "%");
+    el("vArvc").innerHTML = testoCampo(s.rArvc, 0, 100, "%");
+    el("v123").innerHTML = testoCampo(s.r123, 0, 100, "%");
+    el("outInd").innerHTML = disegnaInd(s, r);
+    el("outCasc").innerHTML = disegnaCasc(s, r);
+    d = r.stato === "icd" ? dispositivo(s, r) : null;
+    el("outConf").innerHTML = disegnaConf(s, r, d);
+    el("outInc").innerHTML = disegnaInc(s, r);
+    el("limiti").innerHTML = limiti(s, r);
+    // barra
+    function bar(id, k2, x) { var b = el(id); b.className = "cat " + k2; b.innerHTML = x; }
+    if (r.stato === "icd" || r.stato === "contro") {
+      ch = { "I":"k0", "IIa":"k2", "IIb":"k3", "III":"k4" }[r.prev.c];
+      bar("barInd", ch, DICI[r.prev.c].replace("ICD ", ""));
+      bar("barCl", "kx", r.prev.c + (r.prev.l ? " " + r.prev.l : "") + " · " + (r.prev.a === "23" ? "2023" : (r.prev.a === "f22" ? "Fig. 2022" : "2022")));
+    } else {
+      bar("barInd", "kx", r.stato === "manca" ? "—" : STATI[r.stato].replace("Nessuna indicazione all'ICD", "nessuna indicazione").toLowerCase());
+      bar("barCl", "kx", "—");
+    }
+    imp = impianto(s, r);
+    if (r.stato !== "icd") bar("barImp", "kx", "—");
+    else if (imp === "nonora") bar("barImp", "k4", "non ora: incessante");
+    else if (imp === "no") bar("barImp", "k4", "no: attesa di vita");
+    else if (imp === null) bar("barImp", "kx", "—");
+    else if (!d || !d.tipo) bar("barImp", "kx", "—");
+    else bar("barImp", d.tipo === "alt" ? "k3" : (d.tipo === "wcd" || d.tipo === "attesa" ? "k2" : "k1"),
+      { crtd:"CRT-D", tv:"ICD transvenoso", sicd:"S-ICD possibile", wcd:"WCD ponte", attesa:"rimandato", alt:"alternative" }[d.tipo]);
+  }
+
+  document.addEventListener("input", disegna);
+  document.addEventListener("change", disegna);
+  el("azzera").addEventListener("click", function () {
+    var ins = document.querySelectorAll("input"), i, sel = document.querySelectorAll("select");
+    for (i = 0; i < ins.length; i++) {
+      if (ins[i].type === "checkbox" || ins[i].type === "radio") ins[i].checked = false;
+      else ins[i].value = "";
+    }
+    for (i = 0; i < sel.length; i++) sel[i].value = "";
+    disegna();
+    window.scrollTo(0, 0);
+  });
+
+  window.ICD_EZ_MOTORE = { sintesi:sintesi, cancelli:cancelli, dispositivo:dispositivo, visibili:visibili, vuoto:vuoto,
+    prova:function (x) { return sintesi(vuoto(x)); }, SOGLIE:SOGLIE, RIGHE:RIGHE };
+  disegna();
+})();
+</script>
+<script data-iphone="web">
+// Solo da un indirizzo https, cioe' dalla pagina pubblicata: aperto come file
+// il tool non cerca ne' manifest ne' service worker, che accanto al file non
+// ci sono. Un errore qui non deve fermare niente: e' un di piu'.
+(function(){
+if(location.protocol!=="https:") return;
+try{
+  var t=document.getElementsByTagName("head")[0];
+  var m=document.createElement("link"); m.rel="manifest"; m.href="manifest.webmanifest";
+  var i=document.createElement("link"); i.rel="apple-touch-icon"; i.href="icona-180.png";
+  t.appendChild(m); t.appendChild(i);
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js")["catch"](function(){});
+}catch(e){}
+})();
+</script>
+<script data-iphone="fine">document.documentElement.className+=" motore-ok";</script>
+</body>
+</html>
