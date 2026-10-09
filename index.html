@@ -298,7 +298,7 @@ html.js.motore-ko #nomotore{display:block}
     </span></div>
   <div class="riga hide" id="w_imaGg"><span class="fl">Giorni dall'infarto, oggi</span><input type="number" id="imaGg" min="0" max="365" step="1" inputmode="numeric" placeholder="—"><span class="vv" id="vIma">—</span></div>
   <!-- genetica DCM/NDLVC -->
-  <div class="riga hide" id="w_gene"><span class="fl">Genotipo<small>variante patogena nota (ESC 2023, Tab. 21)</small></span>
+  <div class="riga hide" id="w_gene"><span class="fl">Genotipo<small>variante patogena nota (ESC 2023, Tab. 21; EMD e DES dal testo)</small></span>
     <select id="gene" aria-label="Genotipo">
       <option value="">— non detto —</option>
       <option value="nessuno">nessuna variante ad alto rischio, o test negativo</option>
@@ -308,7 +308,8 @@ html.js.motore-ko #nomotore{display:block}
       <option value="pln">PLN</option>
       <option value="dsp">DSP</option>
       <option value="rbm20">RBM20</option>
-      <option value="emd">EMD o DES (nel testo, senza riga in Tab. 21)</option>
+      <option value="emd" id="optEmd">EMD — solo con DCM (testo, p. 3564)</option>
+      <option value="des" id="optDes">DES — solo con NDLVC (testo, p. 3568)</option>
     </select></div>
   <div class="riga hide" id="w_rLmna"><span class="fl">Rischio LMNA a 5 anni (%)<small>dal calcolatore LMNA: Tool LMNA</small></span><input type="number" id="rLmna" min="0" max="100" step="0.1" inputmode="decimal" placeholder="—"><span class="vv" id="vLmna">—</span></div>
   <div class="riga hide" id="w_rPln"><span class="fl">Rischio PLN a 5 anni (%)<small>dal punteggio PLN, calcolato altrove</small></span><input type="number" id="rPln" min="0" max="100" step="0.1" inputmode="decimal" placeholder="—"><span class="vv" id="vPln">—</span></div>
@@ -491,7 +492,7 @@ html.js.motore-ko #nomotore{display:block}
 <div class="card"><h3>Limiti per questo paziente</h3><ul class="lista" id="limiti"></ul></div>
 
 <div class="foot">
-  <strong>Fonti.</strong> Zeppenfeld K, Tfelt-Hansen J, de Riva M, et al. 2022 ESC Guidelines for the management of patients with ventricular arrhythmias and the prevention of sudden cardiac death. <em>Eur Heart J</em> 2022;43:3997–4126, doi:10.1093/eurheartj/ehac262 — ICD, aspetti generali e prevenzione secondaria (Rec. Table 11–15, pp. 4040–4041), complicanze (Rec. Table 20, p. 4043), LVAD (Rec. Table 19, p. 4042), malattia per malattia (Rec. Table 22–46, pp. 4046–4087), trapianto (Rec. Table 48, p. 4089), anziani (Rec. Table 50, p. 4090). Arbelo E, Protonotarios A, Gimeno JR, et al. 2023 ESC Guidelines for the management of cardiomyopathies. <em>Eur Heart J</em> 2023;44:3503–3626, doi:10.1093/eurheartj/ehad194 — ICD nelle cardiomiopatie (Rec. Table 12, p. 3545), HCM (Rec. Table 23, pp. 3561–3562), DCM (Rec. Table 24 e Tab. 21, p. 3566), NDLVC (Rec. Table 26, p. 3568), ARVC (Rec. Table 29, p. 3571; Fig. 18, p. 3572), RCM (Rec. Table 30, p. 3574). Ogni classe mostrata porta la sua pagina. I confronti con le altre linee guida vengono dalle schede del progetto.<br><br>
+  <strong>Fonti.</strong> Zeppenfeld K, Tfelt-Hansen J, de Riva M, et al. 2022 ESC Guidelines for the management of patients with ventricular arrhythmias and the prevention of sudden cardiac death. <em>Eur Heart J</em> 2022;43:3997–4126, doi:10.1093/eurheartj/ehac262 — ICD, aspetti generali e prevenzione secondaria (Rec. Table 11–15, pp. 4040–4041), complicanze (Rec. Table 20, p. 4043), LVAD (Rec. Table 19, p. 4042), malattia per malattia (Rec. Table 22–46, pp. 4046–4087), trapianto (Rec. Table 48, p. 4089), anziani (Rec. Table 50, p. 4090). Arbelo E, Protonotarios A, Gimeno JR, et al. 2023 ESC Guidelines for the management of cardiomyopathies. <em>Eur Heart J</em> 2023;44:3503–3626, doi:10.1093/eurheartj/ehad194 — ICD nelle cardiomiopatie (Rec. Table 12, p. 3545), HCM (Rec. Table 23, pp. 3561–3562), DCM (Rec. Table 24 e Tab. 21, p. 3566; geni ad alto rischio nel testo, p. 3564), NDLVC (Rec. Table 26 e geni ad alto rischio nel testo, p. 3568), ARVC (Rec. Table 29, p. 3571; Fig. 18, p. 3572), RCM (Rec. Table 30, p. 3574). Ogni classe mostrata porta la sua pagina. I confronti con le altre linee guida vengono dalle schede del progetto.<br><br>
   Strumento personale di studio e consultazione: <strong>non sostituisce il giudizio clinico né la decisione condivisa con il paziente</strong>. Non calcola i punteggi di rischio e non calcola dosi. Non salva i dati e non li invia in rete.
 </div>
 </div>
@@ -615,6 +616,9 @@ html.js.motore-ko #nomotore{display:block}
     nd_omt23:    ["t23", null, null, "La riga della LVEF ≤35% chiede più di 3 mesi di terapia ottimale", "ESC 2023, Rec. Table 26, p. 3568"],
     nd_nyha1:    ["t23", null, null, "LVEF ≤35% senza sintomi di scompenso: la 2023 non ha una riga. Solo nella Fig. 17 la LVEF <35% porta all'ICD IIa senza chiedere i sintomi (p. 3565): classe della figura, non di una riga", "ESC 2023, Rec. Table 26, p. 3568"],
     nd_testo:    ["t23", null, null, "NDLVC senza variante nota: secondo il testo l'ICD è ragionevole da considerare con TVNS, morte improvvisa in famiglia o LGE significativo", "ESC 2023, p. 3568"],
+    // EMD e DES: geni ad alto rischio solo nel testo, ognuno in una lista sola (correzione del 09/10/2026)
+    dcm_emd23:   ["t23", null, null, "EMD è fra i geni ad alto rischio solo nella lista del testo della DCM, e non ha una riga in Tab. 21: la fonte non ne dà i predittori, e il fattore aggiuntivo si pesa nella decisione condivisa", "ESC 2023, p. 3564; Tab. 21, p. 3566"],
+    nd_des23:    ["t23", null, null, "DES è fra i geni ad alto rischio solo nella lista del testo della NDLVC, e non ha una riga in Tab. 21: la fonte non ne dà i predittori, e il fattore aggiuntivo si pesa nella decisione condivisa", "ESC 2023, p. 3568; Tab. 21, p. 3566"],
     lvnc_22:     ["22", "IIa", "C", "Fenotipo di non compattazione alla CMR o all'eco: l'ICD in prevenzione primaria segue le regole della DCM/HNDCM", "ESC 2022, Rec. Table 31, p. 4063"],
     lvnc_23:     ["t23", null, null, "Per la 2023 la non compattazione è un tratto (ipertrabecolatura), non una cardiomiopatia: decide il fenotipo associato, senza una riga propria", "ESC 2023, p. 3517"],
     valv_22:     ["22", "I", "C", "Disfunzione VS che persiste dopo la correzione chirurgica: ICD in prevenzione primaria con i criteri della DCM/HNDCM", "ESC 2022, Rec. Table 37, p. 4071"],
@@ -753,8 +757,18 @@ html.js.motore-ko #nomotore{display:block}
 
   // Dove la ESC 2023 prevale: le cardiomiopatie (decisione del medico, 03/10/2026).
   var CMP = { dcm:1, ndlvc:1, lvnc:1, hcm:1, arvc:1, rcm:1, amil:1 };
-  // Genotipi ad alto rischio: ESC 2023, Tab. 21, p. 3566 (EMD e DES nel testo, pp. 3564 e 3568).
-  var ALTO = { lmna:1, flnc:1, tmem43:1, pln:1, dsp:1, rbm20:1, emd:1 };
+  // Genotipi ad alto rischio: ESC 2023, Tab. 21, p. 3566, i sei comuni alle due liste del testo.
+  // Le liste del testo non coincidono (correzione del 09/10/2026, capitolo 12): EMD sta solo in quella
+  // della DCM (p. 3564), DES solo in quella della NDLVC (p. 3568); nessuno dei due ha una riga in Tab. 21.
+  // EMD si offre solo con la DCM e DES solo con la NDLVC; con la non compattazione nessuno dei due, perche'
+  // per la 2023 decide il fenotipo associato (p. 3517): si sceglie quello come eziologia.
+  var ALTO_DCM = { lmna:1, flnc:1, tmem43:1, pln:1, dsp:1, rbm20:1, emd:1 };
+  var ALTO_ND = { lmna:1, flnc:1, tmem43:1, pln:1, dsp:1, rbm20:1, des:1 };
+  var SOLO_TESTO = { emd:{ ez:"dcm", nome:"EMD", pg:"ESC 2023, p. 3564", lista:"della DCM" },
+                     des:{ ez:"ndlvc", nome:"DES", pg:"ESC 2023, p. 3568", lista:"della NDLVC" } };
+  function listaAlto(ez) { return ez === "ndlvc" ? ALTO_ND : ALTO_DCM; }
+  // il gene scelto e' offerto per questa eziologia? (EMD solo con la DCM, DES solo con la NDLVC)
+  function geneAmmesso(ez, gene) { return !SOLO_TESTO[gene] || SOLO_TESTO[gene].ez === ez; }
   // Geni fra i fattori della riga IIa C della 2022: ESC 2022, Rec. Table 28, p. 4057.
   // LMNA no: nella riga la nota d la manda alle sue raccomandazioni, e la Fig. 19 (nota a, p. 4055) la tiene fuori dai fattori.
   var GENI22 = { pln:1, flnc:1, rbm20:1 };
@@ -862,6 +876,10 @@ html.js.motore-ko #nomotore{display:block}
     }
     fe = campo(o, s.fe, 5, 85, "la FEVS");
     if (con23 && !gene) o.manca.push("il genotipo (anche «nessuna variante»)");
+    // EMD solo con la DCM (p. 3564), DES solo con la NDLVC (p. 3568): un gene fuori dalla sua lista non decide
+    if (con23 && gene && !geneAmmesso(tipo, gene)) o.manca.push("un genotipo valido per questa eziologia: " + SOLO_TESTO[gene].nome +
+      " sta solo nella lista dei geni ad alto rischio " + SOLO_TESTO[gene].lista + " (" + SOLO_TESTO[gene].pg + ")" +
+      (tipo === "lvnc" ? "; con la non compattazione decide il fenotipo associato: sceglilo come eziologia" : ""));
     if (fe !== null && fe <= SOGLIE.DCM_FE) {
       if (!s.nyha) o.manca.push("la classe NYHA");
       campo(o, s.omt, 0, 240, "i mesi di terapia ottimale");
@@ -888,8 +906,10 @@ html.js.motore-ko #nomotore{display:block}
       if (s.nyha !== "1") {
         if (s.omt > SOGLIE.OMT_MESI) add(o, nd ? "nd_iia23" : "dcm_iia23"); else add(o, nd ? "nd_omt23" : "dcm_omt23", "prima");
       } else add(o, nd ? "nd_nyha1" : "dcm_nyha1", "info");
-    } else if (ALTO[gene]) {
+    } else if (listaAlto(tipo)[gene]) {
       add(o, nd ? "nd_gen23" : "dcm_gen23", "info");
+      if (gene === "emd") add(o, "dcm_emd23", "info");
+      if (gene === "des") add(o, "nd_des23", "info");
       ft = fattoriT21(s, o, fe);
       if (ft === null) return;
       add(o, ft ? (nd ? "nd_hrF23" : "dcm_hrF23") : (nd ? "nd_hr23" : "dcm_hr23"));
@@ -1162,7 +1182,7 @@ html.js.motore-ko #nomotore{display:block}
     v.w_gene = dcmL && p;
     v.w_rLmna = v.w_gene && s.gene === "lmna";
     v.w_rPln = v.w_gene && s.gene === "pln";
-    v.w_giudG = v.w_gene && inn(s.gene, ["lmna", "pln", "emd"]);
+    v.w_giudG = v.w_gene && inn(s.gene, ["lmna", "pln", "emd", "des"]) && geneAmmesso(ez, s.gene);
     v.w_sesso = v.w_gene && s.gene === "tmem43";
     v.w_eta16 = ez === "hcm" && p;
     v.w_rHcm = v.w_eta16;
@@ -1335,7 +1355,8 @@ html.js.motore-ko #nomotore{display:block}
     { ez:["cad"], t:"<b>TV tollerata con FEVS <40%.</b> La Fig. 16 dà l'ICD in classe I a tutto il ramo FEVS <40%, anche alla TV ben tollerata; la tabella dà la I alla FV e alla TV non tollerata (p. 4049; p. 4047).", tocca:function (s) { return s.ev === "tvt" && s.fe !== null && s.fe < 40; } },
     { ez:["dcm", "ndlvc", "lvnc", "valv"], t:"<b>Fig. 19 e Rec. Table 28.</b> La figura scrive la fascia 36–50%, la riga LVEF <50%; il ramo ≤35% della figura non ripete NYHA II–III e i 3 mesi; LMNA ha un ramo suo nella figura (fuori dall'elenco dei fattori, nota a) e nella riga la nota d la manda alle sue raccomandazioni: per questo LMNA non conta fra i due fattori della IIa C, e decide la riga del 10%. Per il resto valgono le righe (p. 4055; p. 4057).", tocca:function (s) { return pri(s); } },
     { ez:["dcm", "ndlvc", "lvnc"], t:"<b>Tre mesi.</b> La 2022 scrive «almeno 3 mesi» di terapia ottimale, la 2023 «più di 3 mesi»: a 3 mesi esatti la riga 2022 vale, quella 2023 non ancora (p. 4057; pp. 3566 e 3568).", tocca:function (s) { return pri(s) && s.omt === 3 && s.fe !== null && s.fe <= 35; } },
-    { ez:["dcm", "ndlvc", "lvnc"], t:"<b>Fig. 17 della 2023.</b> La figura scrive LVEF <35%, le righe ≤35%, e il ramo «LVEF <35%» della figura porta all'ICD IIa senza chiedere lo scompenso sintomatico né i 3 mesi che la riga IIa A vuole: lo strumento segue la riga. Il gene ad alto rischio senza fattori aggiuntivi è IIb C in tabella, mentre nella figura, senza sincope né LGE, non porta all'ICD. Lo strumento segue la riga, «in pazienti selezionati» (pp. 3565–3566).", tocca:function (s) { return pri(s) && (s.fe === 35 || (s.fe > 35 && !!ALTO[s.gene]) || (s.fe !== null && s.fe < 35 && s.nyha === "1")); } },
+    { ez:["dcm", "ndlvc", "lvnc"], t:"<b>Fig. 17 della 2023.</b> La figura scrive LVEF <35%, le righe ≤35%, e il ramo «LVEF <35%» della figura porta all'ICD IIa senza chiedere lo scompenso sintomatico né i 3 mesi che la riga IIa A vuole: lo strumento segue la riga. Il gene ad alto rischio senza fattori aggiuntivi è IIb C in tabella, mentre nella figura, senza sincope né LGE, non porta all'ICD. Lo strumento segue la riga, «in pazienti selezionati» (pp. 3565–3566).", tocca:function (s) { return pri(s) && (s.fe === 35 || (s.fe > 35 && !!listaAlto(s.ez)[s.gene] && geneAmmesso(s.ez, s.gene)) || (s.fe !== null && s.fe < 35 && s.nyha === "1")); } },
+    { ez:["dcm", "ndlvc", "lvnc"], t:"<b>EMD e DES.</b> Le due liste dei geni ad alto rischio del testo non coincidono: quella della DCM nomina EMD e non DES (p. 3564), quella della NDLVC DES e non EMD (p. 3568), e nessuno dei due ha una riga in Tab. 21, che ne darebbe i predittori (p. 3566). Nella stessa p. 3564 DES compare però fra i geni con rischio di morte improvvisa aumentato per cui si fa la CMR ai parenti. Lo strumento offre EMD solo con la DCM e DES solo con la NDLVC; con la non compattazione nessuno dei due, perché decide il fenotipo associato (p. 3517).", tocca:function (s) { return pri(s) && !!SOLO_TESTO[s.gene]; } },
     { ez:["hcm"], t:"<b>LGE esteso.</b> La nota della Fig. 16 della 2023 lo definisce «>15%», la tabella e il testo «≥15%»: con il 15% esatto vale la tabella (p. 3561). E l'attesa di vita è «≥1 anno» nella figura, «>1 anno» nella Rec. Table 12 (p. 3545).", tocca:function (s) { return !!s.lge15; } },
     { ez:["hcm"], t:"<b>Alcolizzazione settale.</b> La 2022 esclude il calcolatore anche dopo l'alcolizzazione (p. 4062); la 2023 lo dice validato lì in un solo studio, e non validato prima e dopo la miectomia (p. 3560). Lo strumento segue la 2023.", tocca:function (s) { return !!s.asa || !!s.noCalc; } },
     { ez:["arvc"], t:"<b>Prevenzione secondaria nell'ARVC.</b> I A nella Rec. Table 29 (p. 3571), I B nella Rec. Table 12 (p. 3545), per la stessa situazione. Lo strumento usa la tabella dell'ARVC.", tocca:function (s) { return sec(s); } },
@@ -1523,6 +1544,9 @@ html.js.motore-ko #nomotore{display:block}
       if (on && (" " + chk[i].className + " ").indexOf(" on ") < 0) chk[i].className += " on";
       if (!on) chk[i].className = chk[i].className.replace(/(^|\s)on(\s|$)/g, " ").replace(/\s+$/, "");
     }
+    // EMD si sceglie solo con la DCM (p. 3564), DES solo con la NDLVC (p. 3568)
+    el("optEmd").disabled = !geneAmmesso(s.ez, "emd");
+    el("optDes").disabled = !geneAmmesso(s.ez, "des");
     // etichette che cambiano con la malattia
     el("revSub").innerHTML = s.ez === "cad" ? "per la coronaropatia: ischemia in corso, o aritmia entro 48 h dall'infarto" : "ischemia acuta, disturbi elettrolitici, farmaci, tossici";
     el("pesSub").innerHTML = s.ez === "brs" ? "FV inducibile con al massimo 2 extrastimoli?" : (s.ez === "nm" ? "TV non da rientro branca-branca indotta allo studio?" : "TV monomorfa sostenuta inducibile?");
